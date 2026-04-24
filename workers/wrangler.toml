@@ -1,0 +1,10 @@
+name = "yapr-api"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Secrets set via: wrangler secret put ANTHROPIC_API_KEY
+# [vars] below are non-secret; edit as needed.
+
+[vars]
+ALLOWED_ORIGIN = "https://yapr.vercel.app"
