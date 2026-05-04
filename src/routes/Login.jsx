@@ -36,7 +36,7 @@ export default function Login() {
             yapr<span className="text-rust">.</span>
           </h1>
           <p className="text-mist text-sm uppercase tracking-[0.3em]">
-            a voice for the tangents
+            Your AI buddy to yap with
           </p>
         </div>
 
@@ -90,7 +90,7 @@ export default function Login() {
         )}
 
         <p className="mt-16 text-center text-mist/60 text-xs italic">
-          for victoria, with love.
+          For victoria, with love.
         </p>
       </div>
     </main>
