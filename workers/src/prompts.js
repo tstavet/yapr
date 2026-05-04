@@ -52,6 +52,10 @@ function formatFacts(facts) {
     .join('\n');
 }
 
+// TTS tone steering. Used by /api/speak and /api/talk.
+// Edit this string to change how Kones sounds without redeploying voices.
+export const KONES_TTS_INSTRUCTIONS = `You are a kind, gentle friend speaking softly to someone you care about deeply. Your tone is warm, patient, and unhurried. Smile while you speak — you can hear it. Speak at a relaxed, even pace. Be soothing, never sharp. Sound like you have all the time in the world for this person.`;
+
 // Separate prompt for the background fact-extraction job.
 // Runs on Haiku after each conversation. Cheap and fast.
 export const FACT_EXTRACTION_PROMPT = `You are reading a conversation between a user and her friend Kones.
