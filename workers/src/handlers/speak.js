@@ -30,7 +30,7 @@ export async function handleSpeak(request, env) {
       model: 'gpt-4o-mini-tts',
       voice,
       input: text,
-      instructions: "Speak like you're chatting with your best friend on the phone: bubbly and super engaged. Vary your pace naturally — sometimes quick when you're excited, sometimes slow when you're thinking. Don't perform. Just talk. Mirror their tone. If they're happy, you should be happy. When they're sad, reciprocate.",
+      instructions: "Speak like you're chatting with your best friend on the phone: bubbly and super engaged. "You are a kind, gentle friend speaking softly to someone you care about deeply. Your tone is warm, patient, and unhurried. Smile while you speak — you can hear it. Speak at a relaxed, even pace. Be soothing, never sharp. Sound like you have all the time in the world for this person.",
       response_format: 'mp3',
       speed: 1.0
     })
