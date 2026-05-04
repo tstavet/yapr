@@ -8,7 +8,7 @@
 
 import { requireUser } from '../lib/auth.js';
 import { createSupabase } from '../lib/supabase.js';
-import { KONES_TTS_INSTRUCTIONS } from '../prompts.js';
+import { YAP_TTS_INSTRUCTIONS } from '../prompts.js';
 
 export async function handleSpeak(request, env) {
   if (request.method !== 'POST') {
@@ -33,7 +33,7 @@ export async function handleSpeak(request, env) {
       model: 'gpt-4o-mini-tts',
       voice,
       input: text,
-      instructions: KONES_TTS_INSTRUCTIONS,
+      instructions: YAP_TTS_INSTRUCTIONS,
       response_format: 'mp3',
       speed: 1.0
     })
