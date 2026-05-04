@@ -36,7 +36,7 @@ export default function Login() {
             yapr<span className="text-rust">.</span>
           </h1>
           <p className="text-mist text-sm uppercase tracking-[0.3em]">
-            Your AI buddy to yap with
+            The AI buddy you yap with
           </p>
         </div>
 
