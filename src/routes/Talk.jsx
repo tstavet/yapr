@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
@@ -6,7 +7,7 @@ import { StreamingAudioPlayer } from '../lib/audioPlayer';
 import Orb from '../components/Orb';
 
 // States of the conversation loop:
-//   idle       — waiting for Victoria to tap
+//   idle       — waiting for her to tap
 //   listening  — mic open, recording (auto-stops on silence via VAD)
 //   thinking   — waiting on transcribe + first audio chunk
 //   speaking   — audio playing (more chunks may still be arriving)
@@ -24,7 +25,6 @@ export default function Talk() {
   const playerRef = useRef(null);
   const conversationIdRef = useRef(null);
   const inactivityTimerRef = useRef(null);
-  // Latch so the auto-VAD stop only fires once per recording session.
   const autoStopFiredRef = useRef(false);
 
   const getAudioContext = useCallback(() => {
@@ -34,13 +34,9 @@ export default function Talk() {
     return audioCtxRef.current;
   }, []);
 
-  // VAD callback: fired by the recorder hook when it detects a long
-  // enough stretch of silence after speech. We forward this to the
-  // same code path as a manual tap during the listening state.
   const handleSilenceDetected = useCallback(() => {
     if (autoStopFiredRef.current) return;
     autoStopFiredRef.current = true;
-    // Defer to next tick so we don't recurse into the recorder hook.
     queueMicrotask(() => finishListening());
   }, []);
 
@@ -76,8 +72,6 @@ export default function Talk() {
     return () => window.removeEventListener('beforeunload', handleUnload);
   }, []);
 
-  // Shared logic for stopping the mic and running the streaming turn.
-  // Used by both the manual tap and the VAD silence detector.
   async function finishListening() {
     setState('thinking');
     try {
@@ -95,7 +89,6 @@ export default function Talk() {
       setLastTranscript(text);
       setLastReply('');
 
-      // Spin up a fresh player. Old one (if any) is already stopped.
       const player = new StreamingAudioPlayer(getAudioContext());
       playerRef.current = player;
 
@@ -111,8 +104,6 @@ export default function Talk() {
             firstAudio = true;
             setState('speaking');
           }
-          // Don't await — let chunks decode in parallel. The player
-          // schedules them in order via the AudioContext clock.
           player.enqueue(evt.b64).catch((err) => console.error('decode:', err));
         } else if (evt.type === 'done') {
           conversationIdRef.current = evt.conversationId;
@@ -122,7 +113,6 @@ export default function Talk() {
         }
       });
 
-      // SSE closed — wait for the audio queue to actually finish.
       await player.waitForEnd();
       if (playerRef.current === player) playerRef.current = null;
       setState('idle');
@@ -149,7 +139,6 @@ export default function Talk() {
     }
     // ──────────────────────────────────────────────────────────────────
 
-    // Tap during speaking = interrupt. Stop playback and go idle.
     if (state === 'speaking') {
       playerRef.current?.stop();
       playerRef.current = null;
@@ -176,7 +165,6 @@ export default function Talk() {
     }
 
     if (state === 'listening') {
-      // Manual tap-to-stop. Same code path as VAD auto-stop.
       autoStopFiredRef.current = true;
       await finishListening();
     }
@@ -240,7 +228,7 @@ export default function Talk() {
           )}
           {lastReply && (
             <p className="text-cream">
-              <span className="text-rust uppercase tracking-[0.2em] text-xs mr-3">kones</span>
+              <span className="text-rust uppercase tracking-[0.2em] text-xs mr-3">yap</span>
               {lastReply}
             </p>
           )}
