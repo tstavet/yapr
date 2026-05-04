@@ -3,8 +3,14 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 // useVoiceRecorder
 // Manages microphone access + push-to-talk style recording.
 // v1 is tap-to-start, tap-to-stop. VAD auto-stop is a v2 upgrade.
+//
+// IMPORTANT (iOS): pass in an AudioContext that was already created
+// and resumed inside a user gesture. We do not create one here because
+// by the time start() runs, the gesture may be consumed (we awaited
+// getUserMedia first), and a freshly-created context would start in
+// 'suspended' state, leaving the analyser silent.
 
-export function useVoiceRecorder() {
+export function useVoiceRecorder({ getAudioContext } = {}) {
   const [isRecording, setIsRecording] = useState(false);
   const [level, setLevel] = useState(0);  // 0-1, for waveform
   const mediaRecorderRef = useRef(null);
@@ -23,8 +29,11 @@ export function useVoiceRecorder() {
     });
     streamRef.current = stream;
 
-    // Waveform tap
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // Use the externally-managed AudioContext if available, otherwise
+    // create one (fine on desktop, suspended on iOS).
+    const ctx = getAudioContext
+      ? getAudioContext()
+      : new (window.AudioContext || window.webkitAudioContext)();
     const source = ctx.createMediaStreamSource(stream);
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 256;
@@ -51,7 +60,7 @@ export function useVoiceRecorder() {
     mr.start();
     mediaRecorderRef.current = mr;
     setIsRecording(true);
-  }, []);
+  }, [getAudioContext]);
 
   const stop = useCallback(() => {
     return new Promise((resolve) => {
