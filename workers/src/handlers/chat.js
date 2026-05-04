@@ -2,6 +2,9 @@
 // POST /api/chat
 // Body: { text: "what the user just said" }
 // Returns: { reply: "kones's response", conversationId: "..." }
+//
+// Legacy non-streaming endpoint. /api/talk is preferred. This is kept
+// for any non-streaming callers (debug tools, future text-only mode).
 
 import { requireUser } from '../lib/auth.js';
 import { createSupabase } from '../lib/supabase.js';
@@ -26,11 +29,8 @@ export async function handleChat(request, env, ctx) {
   }
 
   const sb = createSupabase(env, token);
-
-  // 1. Get or create the active conversation
   const conversation = await getOrCreateConversation(sb, userId);
 
-  // 2. Write the user message immediately (so it's in the buffer for this turn)
   await appendMessage(sb, {
     conversationId: conversation.id,
     userId,
@@ -38,23 +38,20 @@ export async function handleChat(request, env, ctx) {
     content: text
   });
 
-  // 3. Load the three memory layers in parallel
   const [sessionBuffer, facts, relevantMemories] = await Promise.all([
     loadSessionBuffer(sb, conversation.id),
     loadFacts(sb, userId),
     loadRelevantMemories(sb, userId, text, env)
   ]);
 
-  // 4. Build the system prompt
   const now = new Date().toLocaleString('en-US', {
-    timeZone: 'America/Chicago',  // TODO: pull from profile
+    timeZone: 'America/Chicago',
     weekday: 'long',
     hour: 'numeric',
     minute: '2-digit'
   });
   const systemPrompt = buildSystemPrompt({ facts, relevantMemories, now });
 
-  // 5. Call Claude
   const claudeResp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -65,7 +62,16 @@ export async function handleChat(request, env, ctx) {
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 250,
-      system: systemPrompt,
+      // System prompt as a structured block with cache_control. The same
+      // facts + memories + identity get reused across turns within a
+      // conversation, so caching the prefix cuts both latency and cost.
+      system: [
+        {
+          type: 'text',
+          text: systemPrompt,
+          cache_control: { type: 'ephemeral' }
+        }
+      ],
       messages: sessionBuffer.map((m) => ({ role: m.role, content: m.content }))
     })
   });
@@ -81,7 +87,6 @@ export async function handleChat(request, env, ctx) {
   const claudeData = await claudeResp.json();
   const reply = claudeData.content?.[0]?.text || '';
 
-  // 6. Persist the assistant message
   await appendMessage(sb, {
     conversationId: conversation.id,
     userId,
