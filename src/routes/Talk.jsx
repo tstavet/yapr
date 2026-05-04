@@ -17,8 +17,27 @@ export default function Talk() {
   const [lastTranscript, setLastTranscript] = useState('');
   const [lastReply, setLastReply] = useState('');
   const [error, setError] = useState('');
-  const { isRecording, level, start, stop } = useVoiceRecorder();
-  const audioRef = useRef(null);
+
+  // One AudioContext for the lifetime of the page. Created lazily on the
+  // first user gesture so iOS Safari starts it in 'running' state. Reused
+  // for both the mic analyser (waveform) and TTS playback.
+  const audioCtxRef = useRef(null);
+  // Tracks whether we've already played anything through the context, so
+  // we only do the iOS unlock dance once.
+  const audioUnlockedRef = useRef(false);
+  // Holds the currently-playing TTS source so we can interrupt it.
+  const currentSourceRef = useRef(null);
+
+  // Lazy getter so the recorder hook can grab the same context.
+  const getAudioContext = useCallback(() => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtxRef.current;
+  }, []);
+
+  const { level, start, stop } = useVoiceRecorder({ getAudioContext });
+
   const conversationIdRef = useRef(null);
   const inactivityTimerRef = useRef(null);
 
@@ -40,7 +59,6 @@ export default function Talk() {
   useEffect(() => {
     const handleUnload = () => {
       if (conversationIdRef.current) {
-        // Best-effort — browsers kill fetch on unload, so use sendBeacon-style
         navigator.sendBeacon?.(
           `${import.meta.env.VITE_WORKER_URL}/api/end-conversation`,
           JSON.stringify({ conversationId: conversationIdRef.current })
@@ -51,12 +69,55 @@ export default function Talk() {
     return () => window.removeEventListener('beforeunload', handleUnload);
   }, []);
 
+  // Play a TTS audio Blob through the AudioContext. Because the context
+  // was resumed inside a user gesture, this works even after multiple
+  // awaits — unlike HTMLAudioElement.play().
+  async function playThroughContext(blob) {
+    const ctx = getAudioContext();
+    const arrayBuffer = await blob.arrayBuffer();
+    // Some Safari versions still want the callback-style API.
+    const audioBuffer = await new Promise((resolve, reject) => {
+      ctx.decodeAudioData(arrayBuffer, resolve, reject);
+    });
+    const source = ctx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(ctx.destination);
+    currentSourceRef.current = source;
+    return new Promise((resolve) => {
+      source.onended = () => {
+        if (currentSourceRef.current === source) currentSourceRef.current = null;
+        resolve();
+      };
+      source.start();
+    });
+  }
+
   async function handleTap() {
     setError('');
 
+    // ─── iOS unlock: must run synchronously inside the click event ───
+    // Create or resume the AudioContext, and prime it with a silent
+    // buffer the first time. After this, decodeAudioData + BufferSource
+    // playback will work later in the handler even after many awaits.
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') {
+      // Note: resume() returns a Promise but does not need to be awaited
+      // for the gesture to count. We let it resolve in the background.
+      ctx.resume();
+    }
+    if (!audioUnlockedRef.current) {
+      const silent = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = silent;
+      src.connect(ctx.destination);
+      src.start(0);
+      audioUnlockedRef.current = true;
+    }
+    // ──────────────────────────────────────────────────────────────────
+
     if (state === 'speaking') {
-      // Interrupt playback and return to idle
-      audioRef.current?.pause();
+      currentSourceRef.current?.stop();
+      currentSourceRef.current = null;
       setState('idle');
       return;
     }
@@ -66,7 +127,16 @@ export default function Talk() {
         await start();
         setState('listening');
       } catch (e) {
-        setError(e.message === 'Permission denied' ? 'mic access needed.' : 'could not start mic.');
+        // Distinguish iOS permission denial from other failures so the
+        // UI can give actionable guidance.
+        if (e.name === 'NotAllowedError') {
+          setError('mic blocked. tap the ᴀA in the address bar → website settings → microphone → allow.');
+        } else if (e.name === 'NotFoundError') {
+          setError('no microphone found.');
+        } else {
+          setError(`could not start mic: ${e.message || e.name}`);
+        }
+        setState('idle');
       }
       return;
     }
@@ -93,22 +163,21 @@ export default function Talk() {
         scheduleEnd();
 
         const audioBlob = await speak(reply);
-        const url = URL.createObjectURL(audioBlob);
-        const audio = new Audio(url);
-        audioRef.current = audio;
         setState('speaking');
-        audio.onended = () => {
-          setState('idle');
-          URL.revokeObjectURL(url);
-        };
-        audio.onerror = () => {
-          setState('idle');
-          URL.revokeObjectURL(url);
-        };
-        await audio.play();
+        await playThroughContext(audioBlob);
+        setState('idle');
       } catch (e) {
         console.error(e);
-        setError(e.message || 'something went sideways.');
+        // Surface where the failure actually happened so future debugging
+        // doesn't get lied to by a generic message.
+        const stage = e.message?.startsWith('Transcribe')
+          ? 'transcribe'
+          : e.message?.startsWith('Chat')
+          ? 'chat'
+          : e.message?.startsWith('Speak')
+          ? 'speak'
+          : 'unknown';
+        setError(`${stage}: ${e.message || 'something went sideways.'}`);
         setState('idle');
       }
     }
@@ -132,7 +201,6 @@ export default function Talk() {
 
   return (
     <main className="relative z-10 min-h-screen flex flex-col">
-      {/* Header */}
       <header className="flex items-center justify-between px-6 pt-6 md:px-10">
         <span className="display text-2xl tracking-tight">
           yapr<span className="text-rust">.</span>
@@ -145,7 +213,6 @@ export default function Talk() {
         </button>
       </header>
 
-      {/* Orb + prompt */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
         <button
           onClick={handleTap}
@@ -160,11 +227,10 @@ export default function Talk() {
         </p>
 
         {error && (
-          <p className="mt-4 text-rust text-sm">{error}</p>
+          <p className="mt-4 text-rust text-sm max-w-md text-center">{error}</p>
         )}
       </div>
 
-      {/* Transcript preview (subtle, at bottom) */}
       {(lastTranscript || lastReply) && (
         <div className="px-6 pb-10 md:px-10 max-w-2xl mx-auto w-full space-y-4 text-sm opacity-60 hover:opacity-100 transition-opacity">
           {lastTranscript && (
