@@ -19,7 +19,7 @@ export async function handleTranscribe(request, env) {
   // Forward to OpenAI Whisper
   const whisperForm = new FormData();
   whisperForm.append('file', audio, 'audio.webm');
-  whisperForm.append('model', 'whisper-1');
+  whisperForm.append('model', 'gpt-4o-mini-transcribe');
   whisperForm.append('response_format', 'json');
 
   const resp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
