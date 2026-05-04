@@ -20,18 +20,17 @@ export async function handleSpeak(request, env) {
   const profiles = await sb.req(`/profiles?id=eq.${userId}&select=buddy_voice&limit=1`);
   const voice = profiles[0]?.buddy_voice || 'shimmer';
 
-  // OpenAI TTS — tts-1 is faster/cheaper, tts-1-hd is higher quality.
-  // For v1 we use tts-1 for lowest latency. Upgrade later if Victoria wants.
-  const resp = await fetch('https://api.openai.com/v1/audio/speech', {
+ const resp = await fetch('https://api.openai.com/v1/audio/speech', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${env.OPENAI_API_KEY}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'tts-1',
+      model: 'gpt-4o-mini-tts',
       voice,
       input: text,
+      instructions: "Speak like you're chatting with your best friend on the phone: bubbly and super engaged. Vary your pace naturally — sometimes quick when you're excited, sometimes slow when you're thinking. Don't perform. Just talk. Mirror their tone. If they're happy, you should be happy. When they're sad, reciprocate.",
       response_format: 'mp3',
       speed: 1.0
     })
