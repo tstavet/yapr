@@ -1,16 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
-import { transcribe, chat, speak, endConversation } from '../lib/api';
+import { transcribe, streamTalk, endConversation } from '../lib/api';
+import { StreamingAudioPlayer } from '../lib/audioPlayer';
 import Orb from '../components/Orb';
 
 // States of the conversation loop:
 //   idle       — waiting for Victoria to tap
-//   listening  — mic open, recording
-//   thinking   — waiting on transcribe + chat
-//   speaking   — audio playing
+//   listening  — mic open, recording (auto-stops on silence via VAD)
+//   thinking   — waiting on transcribe + first audio chunk
+//   speaking   — audio playing (more chunks may still be arriving)
 //
-// Flow: tap → listening → (tap again) → thinking → speaking → idle → repeat
+// Flow: tap → listening → (silence or tap) → thinking → speaking → idle
 
 export default function Talk() {
   const [state, setState] = useState('idle');
@@ -18,17 +19,14 @@ export default function Talk() {
   const [lastReply, setLastReply] = useState('');
   const [error, setError] = useState('');
 
-  // One AudioContext for the lifetime of the page. Created lazily on the
-  // first user gesture so iOS Safari starts it in 'running' state. Reused
-  // for both the mic analyser (waveform) and TTS playback.
   const audioCtxRef = useRef(null);
-  // Tracks whether we've already played anything through the context, so
-  // we only do the iOS unlock dance once.
   const audioUnlockedRef = useRef(false);
-  // Holds the currently-playing TTS source so we can interrupt it.
-  const currentSourceRef = useRef(null);
+  const playerRef = useRef(null);
+  const conversationIdRef = useRef(null);
+  const inactivityTimerRef = useRef(null);
+  // Latch so the auto-VAD stop only fires once per recording session.
+  const autoStopFiredRef = useRef(false);
 
-  // Lazy getter so the recorder hook can grab the same context.
   const getAudioContext = useCallback(() => {
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -36,12 +34,21 @@ export default function Talk() {
     return audioCtxRef.current;
   }, []);
 
-  const { level, start, stop } = useVoiceRecorder({ getAudioContext });
+  // VAD callback: fired by the recorder hook when it detects a long
+  // enough stretch of silence after speech. We forward this to the
+  // same code path as a manual tap during the listening state.
+  const handleSilenceDetected = useCallback(() => {
+    if (autoStopFiredRef.current) return;
+    autoStopFiredRef.current = true;
+    // Defer to next tick so we don't recurse into the recorder hook.
+    queueMicrotask(() => finishListening());
+  }, []);
 
-  const conversationIdRef = useRef(null);
-  const inactivityTimerRef = useRef(null);
+  const { level, start, stop } = useVoiceRecorder({
+    getAudioContext,
+    onSilence: handleSilenceDetected
+  });
 
-  // End conversation on tab close / 30 min idle
   const scheduleEnd = useCallback(() => {
     if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     inactivityTimerRef.current = setTimeout(async () => {
@@ -69,42 +76,69 @@ export default function Talk() {
     return () => window.removeEventListener('beforeunload', handleUnload);
   }, []);
 
-  // Play a TTS audio Blob through the AudioContext. Because the context
-  // was resumed inside a user gesture, this works even after multiple
-  // awaits — unlike HTMLAudioElement.play().
-  async function playThroughContext(blob) {
-    const ctx = getAudioContext();
-    const arrayBuffer = await blob.arrayBuffer();
-    // Some Safari versions still want the callback-style API.
-    const audioBuffer = await new Promise((resolve, reject) => {
-      ctx.decodeAudioData(arrayBuffer, resolve, reject);
-    });
-    const source = ctx.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(ctx.destination);
-    currentSourceRef.current = source;
-    return new Promise((resolve) => {
-      source.onended = () => {
-        if (currentSourceRef.current === source) currentSourceRef.current = null;
-        resolve();
-      };
-      source.start();
-    });
+  // Shared logic for stopping the mic and running the streaming turn.
+  // Used by both the manual tap and the VAD silence detector.
+  async function finishListening() {
+    setState('thinking');
+    try {
+      const blob = await stop();
+      if (!blob || blob.size < 500) {
+        setState('idle');
+        return;
+      }
+
+      const { text } = await transcribe(blob);
+      if (!text?.trim()) {
+        setState('idle');
+        return;
+      }
+      setLastTranscript(text);
+      setLastReply('');
+
+      // Spin up a fresh player. Old one (if any) is already stopped.
+      const player = new StreamingAudioPlayer(getAudioContext());
+      playerRef.current = player;
+
+      let firstAudio = false;
+      let replyAccum = '';
+
+      await streamTalk(text, async (evt) => {
+        if (evt.type === 'text') {
+          replyAccum += evt.delta;
+          setLastReply(replyAccum);
+        } else if (evt.type === 'audio') {
+          if (!firstAudio) {
+            firstAudio = true;
+            setState('speaking');
+          }
+          // Don't await — let chunks decode in parallel. The player
+          // schedules them in order via the AudioContext clock.
+          player.enqueue(evt.b64).catch((err) => console.error('decode:', err));
+        } else if (evt.type === 'done') {
+          conversationIdRef.current = evt.conversationId;
+          scheduleEnd();
+        } else if (evt.type === 'error') {
+          throw new Error(evt.message);
+        }
+      });
+
+      // SSE closed — wait for the audio queue to actually finish.
+      await player.waitForEnd();
+      if (playerRef.current === player) playerRef.current = null;
+      setState('idle');
+    } catch (e) {
+      console.error(e);
+      setError(`talk: ${e.message || 'something went sideways.'}`);
+      setState('idle');
+    }
   }
 
   async function handleTap() {
     setError('');
 
     // ─── iOS unlock: must run synchronously inside the click event ───
-    // Create or resume the AudioContext, and prime it with a silent
-    // buffer the first time. After this, decodeAudioData + BufferSource
-    // playback will work later in the handler even after many awaits.
     const ctx = getAudioContext();
-    if (ctx.state === 'suspended') {
-      // Note: resume() returns a Promise but does not need to be awaited
-      // for the gesture to count. We let it resolve in the background.
-      ctx.resume();
-    }
+    if (ctx.state === 'suspended') ctx.resume();
     if (!audioUnlockedRef.current) {
       const silent = ctx.createBuffer(1, 1, 22050);
       const src = ctx.createBufferSource();
@@ -115,20 +149,20 @@ export default function Talk() {
     }
     // ──────────────────────────────────────────────────────────────────
 
+    // Tap during speaking = interrupt. Stop playback and go idle.
     if (state === 'speaking') {
-      currentSourceRef.current?.stop();
-      currentSourceRef.current = null;
+      playerRef.current?.stop();
+      playerRef.current = null;
       setState('idle');
       return;
     }
 
     if (state === 'idle') {
       try {
+        autoStopFiredRef.current = false;
         await start();
         setState('listening');
       } catch (e) {
-        // Distinguish iOS permission denial from other failures so the
-        // UI can give actionable guidance.
         if (e.name === 'NotAllowedError') {
           setError('mic blocked. tap the ᴀA in the address bar → website settings → microphone → allow.');
         } else if (e.name === 'NotFoundError') {
@@ -142,44 +176,9 @@ export default function Talk() {
     }
 
     if (state === 'listening') {
-      setState('thinking');
-      try {
-        const blob = await stop();
-        if (!blob || blob.size < 500) {
-          setState('idle');
-          return;
-        }
-
-        const { text } = await transcribe(blob);
-        if (!text?.trim()) {
-          setState('idle');
-          return;
-        }
-        setLastTranscript(text);
-
-        const { reply, conversationId } = await chat(text);
-        conversationIdRef.current = conversationId;
-        setLastReply(reply);
-        scheduleEnd();
-
-        const audioBlob = await speak(reply);
-        setState('speaking');
-        await playThroughContext(audioBlob);
-        setState('idle');
-      } catch (e) {
-        console.error(e);
-        // Surface where the failure actually happened so future debugging
-        // doesn't get lied to by a generic message.
-        const stage = e.message?.startsWith('Transcribe')
-          ? 'transcribe'
-          : e.message?.startsWith('Chat')
-          ? 'chat'
-          : e.message?.startsWith('Speak')
-          ? 'speak'
-          : 'unknown';
-        setError(`${stage}: ${e.message || 'something went sideways.'}`);
-        setState('idle');
-      }
+      // Manual tap-to-stop. Same code path as VAD auto-stop.
+      autoStopFiredRef.current = true;
+      await finishListening();
     }
   }
 
