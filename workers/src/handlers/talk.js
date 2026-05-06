@@ -52,172 +52,152 @@ export async function handleTalk(request, env, ctx) {
     return new Response('Method not allowed', { status: 405 });
   }
 
+  // Auth runs synchronously so a 401 stays a 401, not an error event.
   const { userId, token } = await requireUser(request, env);
 
-  // Accept either multipart audio (the phone's hot path) or JSON {text} (debug).
-  // We open the SSE stream BEFORE any awaits we don't have to make the client wait
-  // on, but Whisper has to finish before we know the transcript or whether to bail,
-  // so it stays inline. Net effect: one device round-trip instead of two.
-  const contentType = request.headers.get('Content-Type') || '';
-  let userText = null;
-
-  if (contentType.includes('multipart/form-data')) {
-    const formData = await request.formData();
-    const audio = formData.get('audio');
-    if (!audio) return new Response('Missing audio field', { status: 400 });
-
-    const whisperForm = new FormData();
-    whisperForm.append('file', audio, 'audio.webm');
-    whisperForm.append('model', 'gpt-4o-mini-transcribe');
-    whisperForm.append('response_format', 'json');
-
-    const whisperResp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}` },
-      body: whisperForm
-    });
-    if (!whisperResp.ok) {
-      const err = await whisperResp.text();
-      return new Response(
-        JSON.stringify({ error: `Whisper: ${err}` }),
-        { status: 502, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-    const whisperJson = await whisperResp.json();
-    userText = (whisperJson.text || '').trim();
-  } else {
-    const body = await request.json();
-    userText = typeof body.text === 'string' ? body.text.trim() : '';
-  }
-
-  // Silent / unintelligible audio — most common failure mode. Stream a transcript
-  // event so the client can clear the spinner, then close. No Claude call, no DB write.
-  if (!userText || userText.length < 2) {
-    const emptyStream = new TransformStream();
-    const w = emptyStream.writable.getWriter();
-    const enc = new TextEncoder();
-    w.write(enc.encode(`data: ${JSON.stringify({ type: 'transcript', text: userText || '' })}\n\n`));
-    w.write(enc.encode(`data: ${JSON.stringify({ type: 'done', conversationId: null })}\n\n`));
-    w.close();
-    return new Response(emptyStream.readable, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-store',
-        Connection: 'keep-alive',
-        'X-Accel-Buffering': 'no'
-      }
-    });
-  }
-
-  const sb = createSupabase(env, token);
-  const conversation = await getOrCreateConversation(sb, userId);
-  // User-message write doesn't need to block Claude — it just has to land before
-  // the next turn's loadSessionBuffer. Push it into waitUntil.
-  ctx.waitUntil(
-    appendMessage(sb, {
-      conversationId: conversation.id,
-      userId,
-      role: 'user',
-      content: userText
-    }).catch((err) => console.error('user appendMessage failed:', err))
-  );
-
-  // Cheap loads always run: small SELECTs that finish in ~50-150ms each.
-  const [sessionBuffer, facts, profileRows] = await Promise.all([
-    loadSessionBuffer(sb, conversation.id),
-    loadFacts(sb, userId),
-    sb.req(`/profiles?id=eq.${userId}&select=buddy_voice&limit=1`)
-  ]);
-
-  // Episodic memory recall is the expensive load: an OpenAI embedding round-trip
-  // (~100-300ms) plus a Postgres vector RPC (~50-150ms), serialized. We skip it
-  // entirely when it's unlikely to return anything useful, and cap the worst
-  // case so it can never push TTFT past ~1s.
-  //
-  // Skip when:
-  //   - input is short — semantic match on a 2-word utterance is mostly noise
-  //   - the user has no facts yet — facts and memories accumulate together,
-  //     so an empty facts row is a strong proxy for an empty memories table.
-  //     Net effect: zero recall cost for a brand-new user.
-  //
-  // When we do run it, race against a 600ms cap. If recall is slow we'd rather
-  // miss this turn than make her wait. Memories will fire on subsequent turns.
-  const RECALL_TIMEOUT_MS = 600;
-  const haveAnyFacts = facts && Object.keys(facts).length > 0;
-  const queryWorthRecall = userText.length >= 16 && haveAnyFacts;
-
-  let relevantMemories = [];
-  if (queryWorthRecall) {
-    relevantMemories = await Promise.race([
-      loadRelevantMemories(sb, userId, userText, env).catch((err) => {
-        console.error('memory load failed:', err);
-        return [];
-      }),
-      new Promise((resolve) => setTimeout(() => resolve([]), RECALL_TIMEOUT_MS))
-    ]);
-  }
-
-  const voice = profileRows[0]?.buddy_voice || 'shimmer';
-  const now = new Date().toLocaleString('en-US', {
-    timeZone: 'America/Chicago',
-    weekday: 'long',
-    hour: 'numeric',
-    minute: '2-digit'
-  });
-  const systemPrompt = buildSystemPrompt({ facts, relevantMemories, now });
-
+  // Set up the SSE stream and return it RIGHT AWAY. Everything else — body
+  // parsing, Whisper, Supabase, Claude, TTS — happens inside work() with
+  // the stream already open. Doing heavy I/O before returning the Response
+  // makes iOS Safari give up with "Load failed" and CF kill the worker for
+  // appearing hung.
   const stream = new TransformStream();
   const writer = stream.writable.getWriter();
   const encoder = new TextEncoder();
   const send = (event) =>
     writer.write(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
 
-  // Tell the client what Whisper heard before Claude starts. UX win: the
-  // transcript pane fills in immediately instead of waiting for first audio.
-  await send({ type: 'transcript', text: userText });
-
-  // We pushed the user-message write into waitUntil, so loadSessionBuffer
-  // almost certainly didn't include this turn. Append it in-memory for Claude.
-  // If the buffer somehow did land first, drop the trailing duplicate to keep
-  // Anthropic happy about non-consecutive same-role messages.
-  const claudeMessages = sessionBuffer.map((m) => ({ role: m.role, content: m.content }));
-  const last = claudeMessages[claudeMessages.length - 1];
-  if (!(last && last.role === 'user' && last.content === userText)) {
-    claudeMessages.push({ role: 'user', content: userText });
-  }
-
   const work = async () => {
-    let fullReply = '';
-    let buffer = '';
-    let emitTail = Promise.resolve();
-    let firstFlush = true;
-
-    const flushSentence = () => {
-      const raw = buffer.trim();
-      buffer = '';
-      if (!raw) return;
-      // Sanitize before anything else sees this sentence.
-      const sentence = sanitize(raw);
-      if (!sentence) return; // entire sentence was banned words, just skip
-      // Emit sanitized text to the frontend (replaces token-level streaming).
-      const textPromise = send({ type: 'text', delta: sentence + ' ' });
-      // Fire TTS in parallel; serialize emission order via emitTail.
-      const ttsPromise = synthesize(sentence, env, voice).catch((err) => {
-        console.error('TTS error:', err);
-        return null;
-      });
-      emitTail = emitTail
-        .then(() => textPromise)
-        .then(async () => {
-          const audioBuffer = await ttsPromise;
-          if (!audioBuffer) return;
-          const b64 = arrayBufferToBase64(audioBuffer);
-          await send({ type: 'audio', b64 });
-        });
-      firstFlush = false;
-    };
+    let conversationId = null;
 
     try {
+      // 1. Parse the body and (if multipart) run Whisper.
+      const contentType = request.headers.get('Content-Type') || '';
+      let userText = '';
+
+      if (contentType.includes('multipart/form-data')) {
+        const formData = await request.formData();
+        const audio = formData.get('audio');
+        if (!audio) {
+          await send({ type: 'error', message: 'Missing audio field' });
+          return;
+        }
+
+        const whisperForm = new FormData();
+        whisperForm.append('file', audio, 'audio.webm');
+        whisperForm.append('model', 'gpt-4o-mini-transcribe');
+        whisperForm.append('response_format', 'json');
+
+        const whisperResp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}` },
+          body: whisperForm
+        });
+        if (!whisperResp.ok) {
+          const err = await whisperResp.text();
+          await send({ type: 'error', message: `Whisper: ${err.slice(0, 200)}` });
+          return;
+        }
+        const whisperJson = await whisperResp.json();
+        userText = (whisperJson.text || '').trim();
+      } else {
+        const body = await request.json().catch(() => ({}));
+        userText = typeof body.text === 'string' ? body.text.trim() : '';
+      }
+
+      // 2. Tell the client what we heard (UX win: transcript appears before audio).
+      await send({ type: 'transcript', text: userText });
+
+      // 3. Silent / unintelligible audio — close cleanly, no Claude call, no DB write.
+      if (!userText || userText.length < 2) {
+        await send({ type: 'done', conversationId: null });
+        return;
+      }
+
+      // 4. Get the conversation and stash the user message in the background.
+      const sb = createSupabase(env, token);
+      const conversation = await getOrCreateConversation(sb, userId);
+      conversationId = conversation.id;
+      ctx.waitUntil(
+        appendMessage(sb, {
+          conversationId,
+          userId,
+          role: 'user',
+          content: userText
+        }).catch((err) => console.error('user appendMessage failed:', err))
+      );
+
+      // 5. Cheap loads always run.
+      const [sessionBuffer, facts, profileRows] = await Promise.all([
+        loadSessionBuffer(sb, conversationId),
+        loadFacts(sb, userId),
+        sb.req(`/profiles?id=eq.${userId}&select=buddy_voice&limit=1`)
+      ]);
+
+      // 6. Episodic recall: skip when input is short or facts are empty
+      // (a brand-new user almost certainly has no memories either). Cap at
+      // 600ms so a slow embedding never tanks TTFT.
+      const RECALL_TIMEOUT_MS = 600;
+      const haveAnyFacts = facts && Object.keys(facts).length > 0;
+      const queryWorthRecall = userText.length >= 16 && haveAnyFacts;
+      let relevantMemories = [];
+      if (queryWorthRecall) {
+        relevantMemories = await Promise.race([
+          loadRelevantMemories(sb, userId, userText, env).catch((err) => {
+            console.error('memory load failed:', err);
+            return [];
+          }),
+          new Promise((resolve) => setTimeout(() => resolve([]), RECALL_TIMEOUT_MS))
+        ]);
+      }
+
+      const voice = profileRows[0]?.buddy_voice || 'shimmer';
+      const now = new Date().toLocaleString('en-US', {
+        timeZone: 'America/Chicago',
+        weekday: 'long',
+        hour: 'numeric',
+        minute: '2-digit'
+      });
+      const systemPrompt = buildSystemPrompt({ facts, relevantMemories, now });
+
+      // 7. Build Claude messages. Append current turn since the user-msg
+      // write went into waitUntil and almost certainly hasn't landed yet.
+      const claudeMessages = sessionBuffer.map((m) => ({ role: m.role, content: m.content }));
+      const last = claudeMessages[claudeMessages.length - 1];
+      if (!(last && last.role === 'user' && last.content === userText)) {
+        claudeMessages.push({ role: 'user', content: userText });
+      }
+
+      // 8. Sentence-level streaming pipeline. Each completed sentence is
+      // sanitized, sent as a text event, and TTS'd in parallel; audio events
+      // are emitted in generation order via emitTail.
+      let fullReply = '';
+      let sentenceBuffer = '';
+      let emitTail = Promise.resolve();
+      let firstFlush = true;
+
+      const flushSentence = () => {
+        const raw = sentenceBuffer.trim();
+        sentenceBuffer = '';
+        if (!raw) return;
+        const sentence = sanitize(raw);
+        if (!sentence) return;
+        const textPromise = send({ type: 'text', delta: sentence + ' ' });
+        const ttsPromise = synthesize(sentence, env, voice).catch((err) => {
+          console.error('TTS error:', err);
+          return null;
+        });
+        emitTail = emitTail
+          .then(() => textPromise)
+          .then(async () => {
+            const audioBuffer = await ttsPromise;
+            if (!audioBuffer) return;
+            const b64 = arrayBufferToBase64(audioBuffer);
+            await send({ type: 'audio', b64 });
+          });
+        firstFlush = false;
+      };
+
+      // 9. Call Claude with streaming + prompt caching on the system prompt.
       const claudeResp = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -242,7 +222,7 @@ export async function handleTalk(request, env, ctx) {
 
       if (!claudeResp.ok) {
         const errText = await claudeResp.text();
-        throw new Error(`Claude ${claudeResp.status}: ${errText}`);
+        throw new Error(`Claude ${claudeResp.status}: ${errText.slice(0, 200)}`);
       }
 
       const reader = claudeResp.body.getReader();
@@ -271,36 +251,37 @@ export async function handleTalk(request, env, ctx) {
 
           if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
             const delta = evt.delta.text;
-            buffer += delta;
+            sentenceBuffer += delta;
             fullReply += delta;
 
-            const endsWithTerminator = /[.!?][\s)"'\]]?\s*$/.test(buffer);
+            const endsWithTerminator = /[.!?][\s)"'\]]?\s*$/.test(sentenceBuffer);
             if (endsWithTerminator) {
               flushSentence();
-            } else if (firstFlush && buffer.length > 12 && /,\s*$/.test(buffer)) {
+            } else if (firstFlush && sentenceBuffer.length > 12 && /,\s*$/.test(sentenceBuffer)) {
               flushSentence();
-            } else if (buffer.length > 80 && /,\s*$/.test(buffer)) {
+            } else if (sentenceBuffer.length > 80 && /,\s*$/.test(sentenceBuffer)) {
               flushSentence();
             }
           }
         }
       }
 
-      if (buffer.trim()) flushSentence();
-
+      if (sentenceBuffer.trim()) flushSentence();
       await emitTail;
 
-      // Persist the SANITIZED reply, not the raw one. We don't want banned
-      // words sitting in conversation history influencing future turns.
+      // 10. Persist the SANITIZED reply so banned words can't leak into
+      // future-turn context.
       const cleanReply = sanitize(fullReply);
-      await appendMessage(sb, {
-        conversationId: conversation.id,
-        userId,
-        role: 'assistant',
-        content: cleanReply
-      });
+      ctx.waitUntil(
+        appendMessage(sb, {
+          conversationId,
+          userId,
+          role: 'assistant',
+          content: cleanReply
+        }).catch((err) => console.error('assistant appendMessage failed:', err))
+      );
 
-      await send({ type: 'done', conversationId: conversation.id });
+      await send({ type: 'done', conversationId });
     } catch (err) {
       console.error('talk error:', err);
       try {
