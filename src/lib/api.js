@@ -45,8 +45,11 @@ export async function speak(text) {
 }
 
 /**
- * Streaming chat + TTS. Replaces the chained chat() + speak() calls.
+ * Streaming voice turn. Sends audio directly — Whisper runs server-side so we
+ * save a device round-trip. Falls back to JSON if a string is passed (debug).
+ *
  * Calls onEvent for each SSE message:
+ *   { type: 'transcript', text: '...' }     ← what Whisper heard (audio path only)
  *   { type: 'text', delta: '...' }
  *   { type: 'audio', b64: '...' }
  *   { type: 'done', conversationId: '...' }
@@ -55,12 +58,24 @@ export async function speak(text) {
  * Resolves when the stream closes. onEvent may be async; we await it
  * before reading more bytes (back-pressure on the caller).
  */
-export async function streamTalk(text, onEvent) {
-  const headers = { ...(await authHeaders()), 'Content-Type': 'application/json' };
+export async function streamTalk(audioOrText, onEvent) {
+  const auth = await authHeaders();
+  let body;
+  let headers;
+  if (typeof audioOrText === 'string') {
+    headers = { ...auth, 'Content-Type': 'application/json' };
+    body = JSON.stringify({ text: audioOrText });
+  } else {
+    // Browser sets the multipart boundary automatically — don't set Content-Type.
+    headers = auth;
+    const form = new FormData();
+    form.append('audio', audioOrText, 'audio.webm');
+    body = form;
+  }
   const resp = await fetch(`${WORKER_URL}/api/talk`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ text })
+    body
   });
   if (!resp.ok || !resp.body) {
     const txt = await resp.text().catch(() => '');

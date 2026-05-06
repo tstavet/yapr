@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
-import { transcribe, streamTalk, endConversation } from '../lib/api';
+import { streamTalk, endConversation } from '../lib/api';
 import { StreamingAudioPlayer } from '../lib/audioPlayer';
 import Orb from '../components/Orb';
 
@@ -81,12 +81,6 @@ export default function Talk() {
         return;
       }
 
-      const { text } = await transcribe(blob);
-      if (!text?.trim()) {
-        setState('idle');
-        return;
-      }
-      setLastTranscript(text);
       setLastReply('');
 
       const player = new StreamingAudioPlayer(getAudioContext());
@@ -95,8 +89,17 @@ export default function Talk() {
       let firstAudio = false;
       let replyAccum = '';
 
-      await streamTalk(text, async (evt) => {
-        if (evt.type === 'text') {
+      // Send the audio blob directly — Whisper now runs inside /api/talk.
+      // We get the transcript back as the first SSE event.
+      await streamTalk(blob, async (evt) => {
+        if (evt.type === 'transcript') {
+          if (!evt.text?.trim()) {
+            // Silent / unintelligible audio. Server will close shortly.
+            setState('idle');
+            return;
+          }
+          setLastTranscript(evt.text);
+        } else if (evt.type === 'text') {
           replyAccum += evt.delta;
           setLastReply(replyAccum);
         } else if (evt.type === 'audio') {
@@ -107,7 +110,7 @@ export default function Talk() {
           player.enqueue(evt.b64).catch((err) => console.error('decode:', err));
         } else if (evt.type === 'done') {
           conversationIdRef.current = evt.conversationId;
-          scheduleEnd();
+          if (evt.conversationId) scheduleEnd();
         } else if (evt.type === 'error') {
           throw new Error(evt.message);
         }
