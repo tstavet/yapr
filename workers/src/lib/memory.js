@@ -42,9 +42,11 @@ export async function loadFacts(sb, userId) {
   return rows[0]?.facts || {};
 }
 
-// Layer 3 — episodic memories via semantic search
+// Layer 3 — episodic memories via semantic search.
+// Callers should gate on bigger heuristics before calling — this is the
+// last-resort floor to avoid wasting an embedding call on a single word.
 export async function loadRelevantMemories(sb, userId, queryText, env) {
-  if (!queryText || queryText.length < 8) return [];
+  if (!queryText || queryText.length < 16) return [];
   const embedding = await embed(queryText, env);
   const rows = await sb.rpc('match_memories', {
     query_embedding: embedding,

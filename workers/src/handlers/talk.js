@@ -122,12 +122,40 @@ export async function handleTalk(request, env, ctx) {
     }).catch((err) => console.error('user appendMessage failed:', err))
   );
 
-  const [sessionBuffer, facts, relevantMemories, profileRows] = await Promise.all([
+  // Cheap loads always run: small SELECTs that finish in ~50-150ms each.
+  const [sessionBuffer, facts, profileRows] = await Promise.all([
     loadSessionBuffer(sb, conversation.id),
     loadFacts(sb, userId),
-    loadRelevantMemories(sb, userId, userText, env),
     sb.req(`/profiles?id=eq.${userId}&select=buddy_voice&limit=1`)
   ]);
+
+  // Episodic memory recall is the expensive load: an OpenAI embedding round-trip
+  // (~100-300ms) plus a Postgres vector RPC (~50-150ms), serialized. We skip it
+  // entirely when it's unlikely to return anything useful, and cap the worst
+  // case so it can never push TTFT past ~1s.
+  //
+  // Skip when:
+  //   - input is short — semantic match on a 2-word utterance is mostly noise
+  //   - the user has no facts yet — facts and memories accumulate together,
+  //     so an empty facts row is a strong proxy for an empty memories table.
+  //     Net effect: zero recall cost for a brand-new user.
+  //
+  // When we do run it, race against a 600ms cap. If recall is slow we'd rather
+  // miss this turn than make her wait. Memories will fire on subsequent turns.
+  const RECALL_TIMEOUT_MS = 600;
+  const haveAnyFacts = facts && Object.keys(facts).length > 0;
+  const queryWorthRecall = userText.length >= 16 && haveAnyFacts;
+
+  let relevantMemories = [];
+  if (queryWorthRecall) {
+    relevantMemories = await Promise.race([
+      loadRelevantMemories(sb, userId, userText, env).catch((err) => {
+        console.error('memory load failed:', err);
+        return [];
+      }),
+      new Promise((resolve) => setTimeout(() => resolve([]), RECALL_TIMEOUT_MS))
+    ]);
+  }
 
   const voice = profileRows[0]?.buddy_voice || 'shimmer';
   const now = new Date().toLocaleString('en-US', {
