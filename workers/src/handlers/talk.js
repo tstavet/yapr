@@ -18,7 +18,7 @@ import {
   loadRelevantMemories,
   appendMessage
 } from '../lib/memory.js';
-import { buildSystemPrompt, YAP_TTS_INSTRUCTIONS } from '../prompts.js';
+import { buildSystemPrompt, YAP_TTS_INSTRUCTIONS, INCREMENTAL_FACT_PROMPT } from '../prompts.js';
 
 // Banned words. Stripped from anything Yap says before it reaches TTS or
 // the visible transcript. Belt-and-suspenders for the prompt rule —
@@ -148,6 +148,15 @@ export async function handleTalk(request, env, ctx) {
           }),
           new Promise((resolve) => setTimeout(() => resolve([]), RECALL_TIMEOUT_MS))
         ]);
+      }
+
+      // Tell the client what Yap is recalling this turn (if anything). Lets
+      // the UI surface "remembers: …" so the moat is visible to the user.
+      if (relevantMemories.length > 0) {
+        await send({
+          type: 'recall',
+          items: relevantMemories.map((m) => m.content).filter(Boolean)
+        });
       }
 
       const voice = profileRows[0]?.buddy_voice || 'shimmer';
@@ -281,6 +290,21 @@ export async function handleTalk(request, env, ctx) {
         }).catch((err) => console.error('assistant appendMessage failed:', err))
       );
 
+      // 11. Incremental memory extraction — fire-and-forget. After every turn
+      // we ask Haiku "anything fact-worthy in this exchange?" and merge any
+      // result into user_facts. Replaces the broken end-of-conversation
+      // trigger with something that just works on every turn.
+      ctx.waitUntil(
+        extractFactsIncremental({
+          userText,
+          replyText: cleanReply,
+          existingFacts: facts,
+          sb,
+          userId,
+          env
+        }).catch((err) => console.error('fact extraction failed:', err))
+      );
+
       await send({ type: 'done', conversationId });
     } catch (err) {
       console.error('talk error:', err);
@@ -334,4 +358,69 @@ function arrayBufferToBase64(buffer) {
     binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
   }
   return btoa(binary);
+}
+
+// Per-turn fact extraction. Looks at just the latest exchange + already-known
+// facts. Most turns are no-ops; exchanges with new info merge into user_facts.
+// Runs in ctx.waitUntil so it never blocks the response stream.
+async function extractFactsIncremental({ userText, replyText, existingFacts, sb, userId, env }) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      system: INCREMENTAL_FACT_PROMPT,
+      messages: [
+        {
+          role: 'user',
+          content:
+            `Known facts:\n${JSON.stringify(existingFacts || {}, null, 2)}\n\n` +
+            `This exchange:\nUser: ${userText}\nYap: ${replyText}`
+        }
+      ]
+    })
+  });
+  if (!resp.ok) {
+    console.error('Incremental fact extraction non-OK:', await resp.text());
+    return;
+  }
+
+  const data = await resp.json();
+  const raw = data.content?.[0]?.text || '{}';
+  const parsed = safeParseJson(raw);
+  if (!parsed) return;
+
+  const addUpdate = parsed.add_or_update || {};
+  const remove = Array.isArray(parsed.remove) ? parsed.remove : [];
+  if (Object.keys(addUpdate).length === 0 && remove.length === 0) return;
+
+  const updated = { ...(existingFacts || {}), ...addUpdate };
+  for (const key of remove) delete updated[key];
+
+  // user_facts row is created on signup by the handle_new_user trigger, so
+  // PATCH is enough — no upsert. The user owns the row, RLS lets them write.
+  await sb.req(`/user_facts?user_id=eq.${userId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ facts: updated, updated_at: new Date().toISOString() })
+  });
+
+  console.log('Facts updated:', {
+    added: Object.keys(addUpdate),
+    removed: remove
+  });
+}
+
+function safeParseJson(s) {
+  try {
+    // Strip markdown code fences if Haiku wraps the JSON.
+    const cleaned = s.replace(/```json\n?|```/g, '').trim();
+    return JSON.parse(cleaned);
+  } catch {
+    return null;
+  }
 }

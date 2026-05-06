@@ -18,6 +18,7 @@ export default function Talk() {
   const [state, setState] = useState('idle');
   const [lastTranscript, setLastTranscript] = useState('');
   const [lastReply, setLastReply] = useState('');
+  const [recallHints, setRecallHints] = useState([]);
   const [error, setError] = useState('');
 
   const audioCtxRef = useRef(null);
@@ -82,6 +83,7 @@ export default function Talk() {
       }
 
       setLastReply('');
+      setRecallHints([]);
 
       const player = new StreamingAudioPlayer(getAudioContext());
       playerRef.current = player;
@@ -99,6 +101,10 @@ export default function Talk() {
             return;
           }
           setLastTranscript(evt.text);
+        } else if (evt.type === 'recall') {
+          // Yap is recalling something specific from past conversations.
+          // Surface it so memory is visible — the moat made legible.
+          setRecallHints(Array.isArray(evt.items) ? evt.items.slice(0, 3) : []);
         } else if (evt.type === 'text') {
           replyAccum += evt.delta;
           setLastReply(replyAccum);
@@ -204,6 +210,17 @@ export default function Talk() {
       </header>
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
+        {recallHints.length > 0 && (
+          <div className="mb-10 max-w-md text-center text-mist/80 text-xs uppercase tracking-[0.2em] space-y-1">
+            <p className="text-rust">remembering</p>
+            {recallHints.map((hint, i) => (
+              <p key={i} className="italic normal-case tracking-normal text-mist text-sm">
+                {hint}
+              </p>
+            ))}
+          </div>
+        )}
+
         <button
           onClick={handleTap}
           className="group focus:outline-none"

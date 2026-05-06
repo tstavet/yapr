@@ -104,6 +104,28 @@ Rules:
 - If the conversation reveals nothing new worth remembering, return { "add_or_update": {}, "remove": [] }.
 - Do not include any text outside the JSON. No preamble, no explanation.`;
 
+// Lighter prompt that runs after EVERY assistant turn, fire-and-forget.
+// Looks at just the latest exchange (user + Yap reply) plus the current
+// known facts, and proposes updates. Most turns return empty — that's fine
+// and expected. Cheap (~$0.001/turn on Haiku).
+export const INCREMENTAL_FACT_PROMPT = `You are reading a single back-and-forth between a user and her friend Yap.
+
+Your job: given what's already known about her, propose updates to the structured facts based ONLY on this exchange.
+
+Return ONLY valid JSON in this exact shape:
+{
+  "add_or_update": { "key": "value", ... },
+  "remove": ["key"]
+}
+
+Rules:
+- Keys are short, stable, snake_case. Examples: "name", "works_as", "college", "partner", "current_project", "loves", "hates", "family", "lives_in", "siblings".
+- Values are short strings. "Brown" not "she went to Brown University."
+- Only add facts clearly stated in THIS exchange. Don't re-extract from the known-facts object — those are already saved.
+- If this exchange contradicts a known fact, update the value under the same key. Don't add a duplicate key.
+- Most exchanges have nothing new. When that's true, return { "add_or_update": {}, "remove": [] } and stop.
+- No text outside the JSON. No preamble. No explanation.`;
+
 // Prompt for generating episodic memory snippets.
 // These are the "moments" that go into vector search.
 export const EPISODIC_EXTRACTION_PROMPT = `You are reading a conversation between a user and her friend Yap.
