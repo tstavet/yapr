@@ -9,6 +9,7 @@ create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   buddy_name text not null default 'Kones',
   buddy_voice text not null default 'shimmer',  -- OpenAI TTS voice: alloy, echo, fable, onyx, nova, shimmer
+  password_set boolean not null default false,  -- flipped true once the user sets a real password
   created_at timestamptz default now()
 );
 
