@@ -1,9 +1,11 @@
 // workers/src/handlers/talk.js
 // POST /api/talk
-// Body: { text: "what she said" }
+// Body (preferred): multipart/form-data with 'audio' field — Whisper runs inline.
+// Body (debug):     application/json { text } — skips Whisper, useful from CLI.
 // Returns: text/event-stream of:
-//   data: {"type":"text","delta":"..."}     ← partial transcript (sanitized, sentence-level)
-//   data: {"type":"audio","b64":"..."}      ← one sentence of mp3, base64
+//   data: {"type":"transcript","text":"..."} ← what Whisper heard (only on multipart)
+//   data: {"type":"text","delta":"..."}      ← partial reply (sanitized, sentence-level)
+//   data: {"type":"audio","b64":"..."}       ← one sentence of mp3, base64
 //   data: {"type":"done","conversationId":"..."}
 //   data: {"type":"error","message":"..."}
 
@@ -51,26 +53,109 @@ export async function handleTalk(request, env, ctx) {
   }
 
   const { userId, token } = await requireUser(request, env);
-  const { text } = await request.json();
-  if (!text || typeof text !== 'string') {
-    return new Response('Missing text', { status: 400 });
+
+  // Accept either multipart audio (the phone's hot path) or JSON {text} (debug).
+  // We open the SSE stream BEFORE any awaits we don't have to make the client wait
+  // on, but Whisper has to finish before we know the transcript or whether to bail,
+  // so it stays inline. Net effect: one device round-trip instead of two.
+  const contentType = request.headers.get('Content-Type') || '';
+  let userText = null;
+
+  if (contentType.includes('multipart/form-data')) {
+    const formData = await request.formData();
+    const audio = formData.get('audio');
+    if (!audio) return new Response('Missing audio field', { status: 400 });
+
+    const whisperForm = new FormData();
+    whisperForm.append('file', audio, 'audio.webm');
+    whisperForm.append('model', 'gpt-4o-mini-transcribe');
+    whisperForm.append('response_format', 'json');
+
+    const whisperResp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}` },
+      body: whisperForm
+    });
+    if (!whisperResp.ok) {
+      const err = await whisperResp.text();
+      return new Response(
+        JSON.stringify({ error: `Whisper: ${err}` }),
+        { status: 502, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    const whisperJson = await whisperResp.json();
+    userText = (whisperJson.text || '').trim();
+  } else {
+    const body = await request.json();
+    userText = typeof body.text === 'string' ? body.text.trim() : '';
+  }
+
+  // Silent / unintelligible audio — most common failure mode. Stream a transcript
+  // event so the client can clear the spinner, then close. No Claude call, no DB write.
+  if (!userText || userText.length < 2) {
+    const emptyStream = new TransformStream();
+    const w = emptyStream.writable.getWriter();
+    const enc = new TextEncoder();
+    w.write(enc.encode(`data: ${JSON.stringify({ type: 'transcript', text: userText || '' })}\n\n`));
+    w.write(enc.encode(`data: ${JSON.stringify({ type: 'done', conversationId: null })}\n\n`));
+    w.close();
+    return new Response(emptyStream.readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-store',
+        Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no'
+      }
+    });
   }
 
   const sb = createSupabase(env, token);
   const conversation = await getOrCreateConversation(sb, userId);
-  await appendMessage(sb, {
-    conversationId: conversation.id,
-    userId,
-    role: 'user',
-    content: text
-  });
+  // User-message write doesn't need to block Claude — it just has to land before
+  // the next turn's loadSessionBuffer. Push it into waitUntil.
+  ctx.waitUntil(
+    appendMessage(sb, {
+      conversationId: conversation.id,
+      userId,
+      role: 'user',
+      content: userText
+    }).catch((err) => console.error('user appendMessage failed:', err))
+  );
 
-  const [sessionBuffer, facts, relevantMemories, profileRows] = await Promise.all([
+  // Cheap loads always run: small SELECTs that finish in ~50-150ms each.
+  const [sessionBuffer, facts, profileRows] = await Promise.all([
     loadSessionBuffer(sb, conversation.id),
     loadFacts(sb, userId),
-    loadRelevantMemories(sb, userId, text, env),
     sb.req(`/profiles?id=eq.${userId}&select=buddy_voice&limit=1`)
   ]);
+
+  // Episodic memory recall is the expensive load: an OpenAI embedding round-trip
+  // (~100-300ms) plus a Postgres vector RPC (~50-150ms), serialized. We skip it
+  // entirely when it's unlikely to return anything useful, and cap the worst
+  // case so it can never push TTFT past ~1s.
+  //
+  // Skip when:
+  //   - input is short — semantic match on a 2-word utterance is mostly noise
+  //   - the user has no facts yet — facts and memories accumulate together,
+  //     so an empty facts row is a strong proxy for an empty memories table.
+  //     Net effect: zero recall cost for a brand-new user.
+  //
+  // When we do run it, race against a 600ms cap. If recall is slow we'd rather
+  // miss this turn than make her wait. Memories will fire on subsequent turns.
+  const RECALL_TIMEOUT_MS = 600;
+  const haveAnyFacts = facts && Object.keys(facts).length > 0;
+  const queryWorthRecall = userText.length >= 16 && haveAnyFacts;
+
+  let relevantMemories = [];
+  if (queryWorthRecall) {
+    relevantMemories = await Promise.race([
+      loadRelevantMemories(sb, userId, userText, env).catch((err) => {
+        console.error('memory load failed:', err);
+        return [];
+      }),
+      new Promise((resolve) => setTimeout(() => resolve([]), RECALL_TIMEOUT_MS))
+    ]);
+  }
 
   const voice = profileRows[0]?.buddy_voice || 'shimmer';
   const now = new Date().toLocaleString('en-US', {
@@ -86,6 +171,20 @@ export async function handleTalk(request, env, ctx) {
   const encoder = new TextEncoder();
   const send = (event) =>
     writer.write(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+
+  // Tell the client what Whisper heard before Claude starts. UX win: the
+  // transcript pane fills in immediately instead of waiting for first audio.
+  await send({ type: 'transcript', text: userText });
+
+  // We pushed the user-message write into waitUntil, so loadSessionBuffer
+  // almost certainly didn't include this turn. Append it in-memory for Claude.
+  // If the buffer somehow did land first, drop the trailing duplicate to keep
+  // Anthropic happy about non-consecutive same-role messages.
+  const claudeMessages = sessionBuffer.map((m) => ({ role: m.role, content: m.content }));
+  const last = claudeMessages[claudeMessages.length - 1];
+  if (!(last && last.role === 'user' && last.content === userText)) {
+    claudeMessages.push({ role: 'user', content: userText });
+  }
 
   const work = async () => {
     let fullReply = '';
@@ -137,7 +236,7 @@ export async function handleTalk(request, env, ctx) {
               cache_control: { type: 'ephemeral' }
             }
           ],
-          messages: sessionBuffer.map((m) => ({ role: m.role, content: m.content }))
+          messages: claudeMessages
         })
       });
 
