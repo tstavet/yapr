@@ -8,22 +8,22 @@ export default function Orb({ state = 'idle', level = 0 }) {
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: 280, height: 280 }}>
-      {/* Outer glow */}
+      {/* Soft warm halo — much subtler than the dark-mode glow */}
       <div
-        className={`absolute inset-0 rounded-full blur-3xl transition-opacity duration-700 ${
-          state === 'idle' ? 'opacity-30' : 'opacity-60'
+        className={`absolute inset-0 rounded-full blur-2xl transition-opacity duration-700 ${
+          state === 'idle' ? 'opacity-25' : 'opacity-50'
         }`}
         style={{
           background:
             state === 'speaking'
-              ? 'radial-gradient(circle, rgba(196, 74, 42, 0.7), transparent 70%)'
+              ? 'radial-gradient(circle, rgba(107, 68, 35, 0.45), transparent 70%)'
               : state === 'listening'
-              ? 'radial-gradient(circle, rgba(74, 93, 58, 0.6), transparent 70%)'
-              : 'radial-gradient(circle, rgba(244, 239, 230, 0.3), transparent 70%)'
+              ? 'radial-gradient(circle, rgba(107, 68, 35, 0.3), transparent 70%)'
+              : 'radial-gradient(circle, rgba(107, 68, 35, 0.2), transparent 70%)'
         }}
       />
 
-      {/* The orb itself */}
+      {/* The orb itself — solid warm brown with cream highlight */}
       <div
         className={`relative rounded-full transition-all duration-300 ${
           state === 'idle' ? 'animate-breathe' : ''
@@ -33,9 +33,9 @@ export default function Orb({ state = 'idle', level = 0 }) {
           height: 180,
           transform: `scale(${scale})`,
           background:
-            'radial-gradient(circle at 35% 30%, rgba(244, 239, 230, 0.9), rgba(196, 74, 42, 0.8) 40%, rgba(74, 93, 58, 0.7) 80%)',
+            'radial-gradient(circle at 35% 30%, rgba(248, 245, 242, 0.85), rgba(107, 68, 35, 0.95) 40%, rgba(61, 40, 23, 1) 85%)',
           boxShadow:
-            'inset 0 0 60px rgba(0,0,0,0.4), inset 0 -20px 40px rgba(196, 74, 42, 0.3), 0 0 80px rgba(196, 74, 42, 0.3)'
+            'inset 0 0 50px rgba(61, 40, 23, 0.5), inset 0 -20px 40px rgba(61, 40, 23, 0.4), 0 12px 32px rgba(107, 68, 35, 0.25)'
         }}
       >
         {/* Inner highlight */}
@@ -46,7 +46,7 @@ export default function Orb({ state = 'idle', level = 0 }) {
             left: '20%',
             width: '30%',
             height: '25%',
-            background: 'radial-gradient(ellipse, rgba(255,255,255,0.4), transparent 70%)',
+            background: 'radial-gradient(ellipse, rgba(255,255,255,0.55), transparent 70%)',
             filter: 'blur(8px)'
           }}
         />
@@ -59,7 +59,7 @@ export default function Orb({ state = 'idle', level = 0 }) {
           style={{
             width: 220,
             height: 220,
-            borderColor: 'rgba(74, 93, 58, 0.5)',
+            borderColor: 'rgba(107, 68, 35, 0.4)',
             borderWidth: 1
           }}
         />
@@ -71,7 +71,7 @@ export default function Orb({ state = 'idle', level = 0 }) {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="w-2 h-2 rounded-full bg-cream/70"
+              className="w-2 h-2 rounded-full bg-brown/70"
               style={{
                 animation: `breathe 1.4s ease-in-out ${i * 0.2}s infinite`
               }}

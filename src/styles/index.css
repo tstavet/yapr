@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html, body, #root {
@@ -12,8 +12,8 @@ html, body, #root {
 }
 
 body {
-  background: #0a0a0a;
-  color: #f4efe6;
+  background: #f8f5f2;
+  color: #0a0a0a;
   font-family: 'Geist', system-ui, sans-serif;
   font-feature-settings: 'ss01', 'cv11';
   -webkit-font-smoothing: antialiased;
@@ -22,13 +22,13 @@ body {
   touch-action: manipulation;
 }
 
-/* The breathing background gradient */
+/* Subtle paper-grain texture on the cream background */
 .grain {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.035;
-  mix-blend-mode: screen;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   z-index: 100;
 }
@@ -38,9 +38,9 @@ body {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(196, 74, 42, 0.12), transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(74, 93, 58, 0.1), transparent 60%),
-    radial-gradient(ellipse 40% 30% at 20% 70%, rgba(138, 133, 128, 0.08), transparent 60%);
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(107, 68, 35, 0.06), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(107, 68, 35, 0.04), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 20% 70%, rgba(138, 133, 128, 0.05), transparent 60%);
   z-index: 0;
 }
 
