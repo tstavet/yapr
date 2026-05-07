@@ -61,7 +61,7 @@ export default function SetPassword({ userId, onDone }) {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="display text-5xl md:text-6xl tracking-tight mb-4 text-ink">
+          <h1 className="display text-5xl md:text-6xl tracking-tight mb-4 text-brown">
             Set a Password<span className="text-brown">.</span>
           </h1>
           <p className="text-mist text-sm">
@@ -81,7 +81,7 @@ export default function SetPassword({ userId, onDone }) {
               placeholder="New Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
+              className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
             />
           </div>
 
@@ -95,7 +95,7 @@ export default function SetPassword({ userId, onDone }) {
               placeholder="Confirm Password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
+              className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
             />
           </div>
 
@@ -115,7 +115,7 @@ export default function SetPassword({ userId, onDone }) {
             <button
               type="button"
               onClick={handleSkip}
-              className="text-mist hover:text-ink transition-colors text-sm underline underline-offset-4 decoration-dotted"
+              className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
             >
               Skip for Now
             </button>

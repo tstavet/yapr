@@ -198,12 +198,12 @@ export default function Talk() {
   return (
     <main className="relative z-10 min-h-screen flex flex-col">
       <header className="flex items-center justify-between px-6 pt-6 md:px-10">
-        <span className="display text-2xl tracking-tight text-ink">
+        <span className="display text-2xl tracking-tight text-brown">
           Yapr<span className="text-brown">.</span>
         </span>
         <button
           onClick={handleSignOut}
-          className="text-mist hover:text-ink text-xs uppercase tracking-[0.2em] transition-colors"
+          className="text-mist hover:text-brown text-xs uppercase tracking-[0.2em] transition-colors"
         >
           Sign Out
         </button>
@@ -224,7 +224,7 @@ export default function Talk() {
           <Orb state={state} level={level} />
         </button>
 
-        <p className="mt-16 display text-3xl md:text-4xl italic text-ink">
+        <p className="mt-16 display text-3xl md:text-4xl italic text-brown">
           {statusLabel}
         </p>
 
@@ -237,12 +237,12 @@ export default function Talk() {
         <div className="px-6 pb-10 md:px-10 max-w-2xl mx-auto w-full space-y-4 text-sm opacity-70 hover:opacity-100 transition-opacity">
           {lastTranscript && (
             <p className="text-mist">
-              <span className="text-ink/60 uppercase tracking-[0.2em] text-xs mr-3">You</span>
+              <span className="text-brown/60 uppercase tracking-[0.2em] text-xs mr-3">You</span>
               {lastTranscript}
             </p>
           )}
           {lastReply && (
-            <p className="text-ink">
+            <p className="text-brown">
               <span className="text-brown uppercase tracking-[0.2em] text-xs mr-3">Yap</span>
               {lastReply}
             </p>

@@ -66,7 +66,7 @@ export default function Login() {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="display text-7xl md:text-8xl tracking-tight mb-3 text-ink">
+          <h1 className="display text-7xl md:text-8xl tracking-tight mb-3 text-brown">
             Yapr<span className="text-brown">.</span>
           </h1>
           <p className="text-mist text-sm uppercase tracking-[0.3em]">
@@ -76,9 +76,9 @@ export default function Login() {
 
         {status === 'sent' ? (
           <div className="text-center space-y-4">
-            <p className="display text-2xl italic text-ink">Check Your Email.</p>
+            <p className="display text-2xl italic text-brown">Check Your Email.</p>
             <p className="text-mist text-sm">
-              We sent a link to <span className="text-ink">{email}</span>
+              We sent a link to <span className="text-brown">{email}</span>
             </p>
             <button
               onClick={() => {
@@ -87,7 +87,7 @@ export default function Login() {
                 setEmail('');
                 setPassword('');
               }}
-              className="text-mist hover:text-ink transition-colors text-sm underline underline-offset-4 decoration-dotted"
+              className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
             >
               Use a Different Email
             </button>
@@ -105,7 +105,7 @@ export default function Login() {
                 placeholder="Your Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
               />
             </div>
 
@@ -119,7 +119,7 @@ export default function Login() {
                 placeholder="Your Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
               />
             </div>
 
@@ -143,7 +143,7 @@ export default function Login() {
                   setStatus('idle');
                   setErrorMsg('');
                 }}
-                className="text-mist hover:text-ink transition-colors text-sm underline underline-offset-4 decoration-dotted"
+                className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
               >
                 First Time, or Forgot Your Password?
               </button>
@@ -162,7 +162,7 @@ export default function Login() {
                 placeholder="Your Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
               />
             </div>
 
@@ -186,7 +186,7 @@ export default function Login() {
                   setStatus('idle');
                   setErrorMsg('');
                 }}
-                className="text-mist hover:text-ink transition-colors text-sm underline underline-offset-4 decoration-dotted"
+                className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
               >
                 Log In with Password Instead
               </button>
