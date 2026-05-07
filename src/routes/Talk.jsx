@@ -211,13 +211,8 @@ export default function Talk() {
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
         {recallHints.length > 0 && (
-          <div className="mb-10 max-w-md text-center text-mist/80 text-xs uppercase tracking-[0.2em] space-y-1">
-            <p className="text-rust">remembering</p>
-            {recallHints.map((hint, i) => (
-              <p key={i} className="italic normal-case tracking-normal text-mist text-sm">
-                {hint}
-              </p>
-            ))}
+          <div className="mb-10 text-center text-xs uppercase tracking-[0.2em]">
+            <p className="text-rust">remembering...</p>
           </div>
         )}
 
