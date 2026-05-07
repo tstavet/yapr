@@ -16,9 +16,15 @@ import {
   loadSessionBuffer,
   loadFacts,
   loadRelevantMemories,
-  appendMessage
+  appendMessage,
+  embed
 } from '../lib/memory.js';
-import { buildSystemPrompt, YAP_TTS_INSTRUCTIONS, INCREMENTAL_FACT_PROMPT } from '../prompts.js';
+import {
+  buildSystemPrompt,
+  YAP_TTS_INSTRUCTIONS,
+  INCREMENTAL_FACT_PROMPT,
+  INCREMENTAL_EPISODIC_PROMPT
+} from '../prompts.js';
 
 // Banned words. Stripped from anything Yap says before it reaches TTS or
 // the visible transcript. Belt-and-suspenders for the prompt rule —
@@ -305,6 +311,20 @@ export async function handleTalk(request, env, ctx) {
         }).catch((err) => console.error('fact extraction failed:', err))
       );
 
+      // Per-turn episodic extraction. Same shape as facts: ask Haiku what's
+      // worth remembering from this single exchange, embed each moment, and
+      // insert into episodic_memories. Empties out for chitchat — that's fine.
+      ctx.waitUntil(
+        extractEpisodicIncremental({
+          userText,
+          replyText: cleanReply,
+          sb,
+          userId,
+          conversationId,
+          env
+        }).catch((err) => console.error('episodic extraction failed:', err))
+      );
+
       await send({ type: 'done', conversationId });
     } catch (err) {
       console.error('talk error:', err);
@@ -413,6 +433,66 @@ async function extractFactsIncremental({ userText, replyText, existingFacts, sb,
     added: Object.keys(addUpdate),
     removed: remove
   });
+}
+
+// Per-turn episodic extraction. Asks Haiku whether this exchange contains a
+// "moment" worth recalling later; for each moment, embeds it and writes a row
+// to episodic_memories. Most turns yield nothing. Fire-and-forget.
+async function extractEpisodicIncremental({ userText, replyText, sb, userId, conversationId, env }) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      system: INCREMENTAL_EPISODIC_PROMPT,
+      messages: [
+        {
+          role: 'user',
+          content: `This exchange:\nUser: ${userText}\nYap: ${replyText}`
+        }
+      ]
+    })
+  });
+  if (!resp.ok) {
+    console.error('Incremental episodic extraction non-OK:', await resp.text());
+    return;
+  }
+
+  const data = await resp.json();
+  const raw = data.content?.[0]?.text || '{}';
+  const parsed = safeParseJson(raw);
+  if (!parsed) return;
+
+  const moments = Array.isArray(parsed.moments) ? parsed.moments : [];
+  const cleaned = moments
+    .filter((m) => typeof m === 'string' && m.trim().length > 0)
+    .map((m) => m.trim())
+    .slice(0, 2);
+  if (cleaned.length === 0) return;
+
+  for (const content of cleaned) {
+    try {
+      const embedding = await embed(content, env);
+      await sb.req('/episodic_memories', {
+        method: 'POST',
+        body: JSON.stringify({
+          user_id: userId,
+          conversation_id: conversationId,
+          content,
+          embedding
+        })
+      });
+    } catch (err) {
+      console.error('episodic insert failed:', err);
+    }
+  }
+
+  console.log({ moments: cleaned });
 }
 
 function safeParseJson(s) {

@@ -146,3 +146,26 @@ Rules:
 - Skip chitchat and generic exchanges.
 - If nothing is worth remembering, return { "moments": [] }.
 - No text outside the JSON.`;
+
+// Per-turn episodic prompt. Looks at a single back-and-forth and decides
+// whether anything in it deserves to become a future-recall "moment."
+// Most turns return { "moments": [] }.
+export const INCREMENTAL_EPISODIC_PROMPT = `You are reading a single back-and-forth between a user and her friend Yap.
+
+Your job: decide whether this exchange contains a "moment" worth remembering for future conversations. A moment is something specific she might want Yap to recall later — a real event, a feeling, a person, a plan, a struggle, a small joy.
+
+Return ONLY valid JSON in this exact shape:
+{
+  "moments": [
+    "Short third-person sentence about her. Self-contained. Specific.",
+    "..."
+  ]
+}
+
+Rules:
+- Write each moment in third person, about her ("She had a fight with her sister today.").
+- Each moment must stand on its own — include the name, place, feeling that gives it meaning.
+- At most 2 moments per exchange. Usually 0 or 1.
+- Skip greetings, chitchat, generic small talk, and exchanges that are just Yap asking a question.
+- If nothing in THIS exchange is worth remembering later, return { "moments": [] }.
+- No text outside the JSON. No preamble. No explanation.`;
