@@ -194,8 +194,19 @@ export async function handleTalk(request, env, ctx) {
         const raw = sentenceBuffer.trim();
         sentenceBuffer = '';
         if (!raw) return;
+        // If the sanitizer fired (banned word in the sentence) the result has
+        // gaps — don't ship a fragment to TTS. Drop the whole sentence and
+        // let the next one carry the response.
+        const hadBanned = BANNED_REGEX.test(raw);
+        BANNED_REGEX.lastIndex = 0;
         const sentence = sanitize(raw);
         if (!sentence) return;
+        const shrankTooMuch = sentence.length < raw.length * 0.9;
+        if (hadBanned || shrankTooMuch) {
+          console.log('sanitizer dropped sentence:', raw);
+          firstFlush = false;
+          return;
+        }
         const textPromise = send({ type: 'text', delta: sentence + ' ' });
         const ttsPromise = synthesize(sentence, env, voice).catch((err) => {
           console.error('TTS error:', err);
