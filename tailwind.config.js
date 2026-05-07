@@ -9,8 +9,8 @@ export default {
       },
       colors: {
         ink: '#0a0a0a',
-        cream: '#f4efe6',
-        rust: '#c44a2a',
+        cream: '#f8f5f2',
+        brown: '#6b4423',
         moss: '#4a5d3a',
         mist: '#8a8580'
       },

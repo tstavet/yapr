@@ -57,7 +57,7 @@ export default function App() {
       <div className="relative min-h-screen flex items-center justify-center">
         <div className="atmosphere" />
         <div className="grain" />
-        <p className="display text-mist text-2xl italic">a moment…</p>
+        <p className="display text-mist text-2xl italic">A moment…</p>
       </div>
     );
   }
@@ -68,7 +68,7 @@ export default function App() {
       <div className="relative min-h-screen flex items-center justify-center">
         <div className="atmosphere" />
         <div className="grain" />
-        <p className="display text-mist text-2xl italic">a moment…</p>
+        <p className="display text-mist text-2xl italic">A moment…</p>
       </div>
     );
   }

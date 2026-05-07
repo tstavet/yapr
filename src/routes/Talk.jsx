@@ -127,7 +127,7 @@ export default function Talk() {
       setState('idle');
     } catch (e) {
       console.error(e);
-      setError(`talk: ${e.message || 'something went sideways.'}`);
+      setError(`Talk: ${e.message || 'Something went sideways.'}`);
       setState('idle');
     }
   }
@@ -162,11 +162,11 @@ export default function Talk() {
         setState('listening');
       } catch (e) {
         if (e.name === 'NotAllowedError') {
-          setError('mic blocked. tap the ᴀA in the address bar → website settings → microphone → allow.');
+          setError('Mic blocked. Tap the ᴀA in the address bar → Website Settings → Microphone → Allow.');
         } else if (e.name === 'NotFoundError') {
-          setError('no microphone found.');
+          setError('No microphone found.');
         } else {
-          setError(`could not start mic: ${e.message || e.name}`);
+          setError(`Could not start mic: ${e.message || e.name}`);
         }
         setState('idle');
       }
@@ -189,30 +189,30 @@ export default function Talk() {
   }
 
   const statusLabel = {
-    idle: 'tap to talk',
-    listening: 'listening…',
-    thinking: 'thinking…',
-    speaking: 'tap to interrupt'
+    idle: 'Tap to Talk',
+    listening: 'Listening…',
+    thinking: 'Thinking…',
+    speaking: 'Tap to Interrupt'
   }[state];
 
   return (
     <main className="relative z-10 min-h-screen flex flex-col">
       <header className="flex items-center justify-between px-6 pt-6 md:px-10">
-        <span className="display text-2xl tracking-tight">
-          yapr<span className="text-rust">.</span>
+        <span className="display text-2xl tracking-tight text-ink">
+          Yapr<span className="text-brown">.</span>
         </span>
         <button
           onClick={handleSignOut}
-          className="text-mist/70 hover:text-cream text-xs uppercase tracking-[0.2em] transition-colors"
+          className="text-mist hover:text-ink text-xs uppercase tracking-[0.2em] transition-colors"
         >
-          sign out
+          Sign Out
         </button>
       </header>
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
         {recallHints.length > 0 && (
           <div className="mb-10 text-center text-xs uppercase tracking-[0.2em]">
-            <p className="text-rust">remembering...</p>
+            <p className="text-brown">Remembering...</p>
           </div>
         )}
 
@@ -224,26 +224,26 @@ export default function Talk() {
           <Orb state={state} level={level} />
         </button>
 
-        <p className="mt-16 display text-3xl md:text-4xl italic text-cream">
+        <p className="mt-16 display text-3xl md:text-4xl italic text-ink">
           {statusLabel}
         </p>
 
         {error && (
-          <p className="mt-4 text-rust text-sm max-w-md text-center">{error}</p>
+          <p className="mt-4 text-brown text-sm max-w-md text-center">{error}</p>
         )}
       </div>
 
       {(lastTranscript || lastReply) && (
-        <div className="px-6 pb-10 md:px-10 max-w-2xl mx-auto w-full space-y-4 text-sm opacity-60 hover:opacity-100 transition-opacity">
+        <div className="px-6 pb-10 md:px-10 max-w-2xl mx-auto w-full space-y-4 text-sm opacity-70 hover:opacity-100 transition-opacity">
           {lastTranscript && (
             <p className="text-mist">
-              <span className="text-cream/50 uppercase tracking-[0.2em] text-xs mr-3">you</span>
+              <span className="text-ink/60 uppercase tracking-[0.2em] text-xs mr-3">You</span>
               {lastTranscript}
             </p>
           )}
           {lastReply && (
-            <p className="text-cream">
-              <span className="text-rust uppercase tracking-[0.2em] text-xs mr-3">yap</span>
+            <p className="text-ink">
+              <span className="text-brown uppercase tracking-[0.2em] text-xs mr-3">Yap</span>
               {lastReply}
             </p>
           )}

@@ -18,12 +18,12 @@ export default function SetPassword({ userId, onDone }) {
     e.preventDefault();
     if (password.length < MIN_PASSWORD_LENGTH) {
       setStatus('error');
-      setErrorMsg(`password needs at least ${MIN_PASSWORD_LENGTH} characters.`);
+      setErrorMsg(`Password needs at least ${MIN_PASSWORD_LENGTH} characters.`);
       return;
     }
     if (password !== confirm) {
       setStatus('error');
-      setErrorMsg("passwords don't match.");
+      setErrorMsg("Passwords don't match.");
       return;
     }
 
@@ -61,11 +61,11 @@ export default function SetPassword({ userId, onDone }) {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="display text-5xl md:text-6xl tracking-tight mb-4">
-            set a password<span className="text-rust">.</span>
+          <h1 className="display text-5xl md:text-6xl tracking-tight mb-4 text-ink">
+            Set a Password<span className="text-brown">.</span>
           </h1>
           <p className="text-mist text-sm">
-            so you can log back in without waiting for an email.
+            So you can log back in without waiting for an email.
           </p>
         </div>
 
@@ -78,10 +78,10 @@ export default function SetPassword({ userId, onDone }) {
               required
               autoFocus
               autoComplete="new-password"
-              placeholder="new password"
+              placeholder="New Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-transparent border-b border-mist/40 focus:border-cream pb-3 pt-2 text-lg text-cream placeholder:text-mist/60 focus:outline-none transition-colors"
+              className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
             />
           </div>
 
@@ -92,32 +92,32 @@ export default function SetPassword({ userId, onDone }) {
               type="password"
               required
               autoComplete="new-password"
-              placeholder="confirm password"
+              placeholder="Confirm Password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="w-full bg-transparent border-b border-mist/40 focus:border-cream pb-3 pt-2 text-lg text-cream placeholder:text-mist/60 focus:outline-none transition-colors"
+              className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={status === 'working'}
-            className="w-full py-4 bg-cream text-ink font-medium tracking-wide hover:bg-rust hover:text-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {status === 'working' ? 'saving…' : 'save password'}
+            {status === 'working' ? 'Saving…' : 'Save Password'}
           </button>
 
           {status === 'error' && (
-            <p className="text-rust text-sm text-center">{errorMsg}</p>
+            <p className="text-brown text-sm text-center">{errorMsg}</p>
           )}
 
           <div className="pt-4 text-center">
             <button
               type="button"
               onClick={handleSkip}
-              className="text-mist hover:text-cream transition-colors text-sm underline underline-offset-4 decoration-dotted"
+              className="text-mist hover:text-ink transition-colors text-sm underline underline-offset-4 decoration-dotted"
             >
-              skip for now
+              Skip for Now
             </button>
           </div>
         </form>

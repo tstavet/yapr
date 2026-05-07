@@ -17,12 +17,12 @@ export default function Login() {
   function friendlyError(err) {
     const m = (err?.message || '').toLowerCase();
     if (m.includes('invalid login')) {
-      return 'wrong password, or no account yet. try the magic link below.';
+      return 'Wrong password, or no account yet. Try the magic link below.';
     }
     if (m.includes('email not confirmed')) {
-      return 'check your email for a confirmation link first.';
+      return 'Check your email for a confirmation link first.';
     }
-    return err?.message || 'something went sideways.';
+    return err?.message || 'Something went sideways.';
   }
 
   async function handlePasswordLogin(e) {
@@ -45,7 +45,7 @@ export default function Login() {
     e.preventDefault();
     if (!email.trim()) {
       setStatus('error');
-      setErrorMsg('enter your email first.');
+      setErrorMsg('Enter your email first.');
       return;
     }
     setStatus('working');
@@ -66,19 +66,19 @@ export default function Login() {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="display text-7xl md:text-8xl tracking-tight mb-3">
-            yapr<span className="text-rust">.</span>
+          <h1 className="display text-7xl md:text-8xl tracking-tight mb-3 text-ink">
+            Yapr<span className="text-brown">.</span>
           </h1>
           <p className="text-mist text-sm uppercase tracking-[0.3em]">
-            The AI buddy you yap with
+            The AI Buddy You Yap With
           </p>
         </div>
 
         {status === 'sent' ? (
           <div className="text-center space-y-4">
-            <p className="display text-2xl italic text-cream">check your email.</p>
+            <p className="display text-2xl italic text-ink">Check Your Email.</p>
             <p className="text-mist text-sm">
-              we sent a link to <span className="text-cream">{email}</span>
+              We sent a link to <span className="text-ink">{email}</span>
             </p>
             <button
               onClick={() => {
@@ -87,9 +87,9 @@ export default function Login() {
                 setEmail('');
                 setPassword('');
               }}
-              className="text-mist hover:text-cream transition-colors text-sm underline underline-offset-4 decoration-dotted"
+              className="text-mist hover:text-ink transition-colors text-sm underline underline-offset-4 decoration-dotted"
             >
-              use a different email
+              Use a Different Email
             </button>
           </div>
         ) : mode === 'password' ? (
@@ -102,10 +102,10 @@ export default function Login() {
                 required
                 autoFocus
                 autoComplete="email"
-                placeholder="your email"
+                placeholder="Your Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-mist/40 focus:border-cream pb-3 pt-2 text-lg text-cream placeholder:text-mist/60 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
               />
             </div>
 
@@ -116,23 +116,23 @@ export default function Login() {
                 type="password"
                 required
                 autoComplete="current-password"
-                placeholder="your password"
+                placeholder="Your Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-b border-mist/40 focus:border-cream pb-3 pt-2 text-lg text-cream placeholder:text-mist/60 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={status === 'working'}
-              className="w-full py-4 bg-cream text-ink font-medium tracking-wide hover:bg-rust hover:text-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {status === 'working' ? 'logging in…' : 'log in'}
+              {status === 'working' ? 'Logging In…' : 'Log In'}
             </button>
 
             {status === 'error' && (
-              <p className="text-rust text-sm text-center">{errorMsg}</p>
+              <p className="text-brown text-sm text-center">{errorMsg}</p>
             )}
 
             <div className="pt-4 text-center">
@@ -143,9 +143,9 @@ export default function Login() {
                   setStatus('idle');
                   setErrorMsg('');
                 }}
-                className="text-mist hover:text-cream transition-colors text-sm underline underline-offset-4 decoration-dotted"
+                className="text-mist hover:text-ink transition-colors text-sm underline underline-offset-4 decoration-dotted"
               >
-                first time, or forgot your password?
+                First Time, or Forgot Your Password?
               </button>
             </div>
           </form>
@@ -159,23 +159,23 @@ export default function Login() {
                 required
                 autoFocus
                 autoComplete="email"
-                placeholder="your email"
+                placeholder="Your Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-mist/40 focus:border-cream pb-3 pt-2 text-lg text-cream placeholder:text-mist/60 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-mist/60 focus:outline-none transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={status === 'working'}
-              className="w-full py-4 bg-cream text-ink font-medium tracking-wide hover:bg-rust hover:text-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {status === 'working' ? 'sending…' : 'send me a link'}
+              {status === 'working' ? 'Sending…' : 'Send Me a Link'}
             </button>
 
             {status === 'error' && (
-              <p className="text-rust text-sm text-center">{errorMsg}</p>
+              <p className="text-brown text-sm text-center">{errorMsg}</p>
             )}
 
             <div className="pt-4 text-center">
@@ -186,16 +186,16 @@ export default function Login() {
                   setStatus('idle');
                   setErrorMsg('');
                 }}
-                className="text-mist hover:text-cream transition-colors text-sm underline underline-offset-4 decoration-dotted"
+                className="text-mist hover:text-ink transition-colors text-sm underline underline-offset-4 decoration-dotted"
               >
-                log in with password instead
+                Log In with Password Instead
               </button>
             </div>
           </form>
         )}
 
-        <p className="mt-16 text-center text-mist/60 text-xs italic">
-          For victoria, with love.
+        <p className="mt-16 text-center text-mist/80 text-xs italic">
+          For Victoria, with love.
         </p>
       </div>
     </main>

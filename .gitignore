@@ -10,3 +10,4 @@ dist-ssr
 .idea/
 .wrangler/
 workers/.dev.vars
+package-lock.json
