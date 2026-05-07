@@ -8,7 +8,7 @@ export default {
         body: ['Geist', 'system-ui', 'sans-serif']
       },
       colors: {
-        ink: '#0a0a0a',
+        ink: '#3d2817',
         cream: '#f8f5f2',
         brown: '#6b4423',
         moss: '#4a5d3a',
