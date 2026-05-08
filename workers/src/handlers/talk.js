@@ -21,10 +21,21 @@ import {
 } from '../lib/memory.js';
 import {
   buildSystemPrompt,
-  YAP_TTS_INSTRUCTIONS,
   INCREMENTAL_FACT_PROMPT,
   INCREMENTAL_EPISODIC_PROMPT
 } from '../prompts.js';
+
+// ElevenLabs voice ID for Gigi — the default Yap voice.
+// profiles.buddy_voice may still hold legacy OpenAI voice names ('shimmer',
+// 'alloy', etc.) for users created before the ElevenLabs swap; resolveVoice()
+// detects those and falls back to this default.
+const ELEVENLABS_DEFAULT_VOICE = 'n7Wi4g1bhpw4Bs8HK5ph';
+
+function resolveVoice(stored) {
+  // ElevenLabs IDs are ~20 chars; OpenAI voice names ('shimmer', 'alloy'…) are short.
+  if (typeof stored === 'string' && stored.length >= 16) return stored;
+  return ELEVENLABS_DEFAULT_VOICE;
+}
 
 // Banned words. Stripped from anything Yap says before it reaches TTS or
 // the visible transcript. Belt-and-suspenders for the prompt rule —
@@ -165,7 +176,7 @@ export async function handleTalk(request, env, ctx) {
         });
       }
 
-      const voice = profileRows[0]?.buddy_voice || 'shimmer';
+      const voice = resolveVoice(profileRows[0]?.buddy_voice);
       const now = new Date().toLocaleString('en-US', {
         timeZone: 'America/Chicago',
         weekday: 'long',
@@ -362,22 +373,28 @@ export async function handleTalk(request, env, ctx) {
 }
 
 async function synthesize(text, env, voice) {
-  const resp = await fetch('https://api.openai.com/v1/audio/speech', {
+  const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      'xi-api-key': env.ELEVENLABS_API_KEY,
+      Accept: 'audio/mpeg',
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini-tts',
-      voice,
-      input: text,
-      instructions: YAP_TTS_INSTRUCTIONS,
-      response_format: 'mp3',
-      speed: 1.0
+      text,
+      model_id: 'eleven_flash_v2_5',
+      voice_settings: {
+        stability: 0.5,
+        similarity_boost: 0.75,
+        style: 0,
+        use_speaker_boost: true
+      }
     })
   });
-  if (!resp.ok) throw new Error(`TTS ${resp.status}`);
+  if (!resp.ok) {
+    const err = await resp.text().catch(() => '');
+    throw new Error(`TTS ${resp.status}: ${err.slice(0, 200)}`);
+  }
   return await resp.arrayBuffer();
 }
 

@@ -3,12 +3,19 @@
 // Body: { text: "..." }
 // Returns: audio/mpeg stream
 //
-// Legacy endpoint. The streaming /api/talk endpoint is preferred for
-// the voice loop. This is kept for any non-streaming callers.
+// Legacy endpoint. The streaming /api/talk endpoint is preferred for the voice
+// loop and is what the live frontend uses. Kept here for non-streaming callers
+// (CLI debug, future use). Updated to ElevenLabs Flash v2.5 alongside /api/talk.
 
 import { requireUser } from '../lib/auth.js';
 import { createSupabase } from '../lib/supabase.js';
-import { YAP_TTS_INSTRUCTIONS } from '../prompts.js';
+
+const ELEVENLABS_DEFAULT_VOICE = 'n7Wi4g1bhpw4Bs8HK5ph';
+
+function resolveVoice(stored) {
+  if (typeof stored === 'string' && stored.length >= 16) return stored;
+  return ELEVENLABS_DEFAULT_VOICE;
+}
 
 export async function handleSpeak(request, env) {
   if (request.method !== 'POST') {
@@ -21,21 +28,24 @@ export async function handleSpeak(request, env) {
 
   const sb = createSupabase(env, token);
   const profiles = await sb.req(`/profiles?id=eq.${userId}&select=buddy_voice&limit=1`);
-  const voice = profiles[0]?.buddy_voice || 'shimmer';
+  const voice = resolveVoice(profiles[0]?.buddy_voice);
 
-  const resp = await fetch('https://api.openai.com/v1/audio/speech', {
+  const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      'xi-api-key': env.ELEVENLABS_API_KEY,
+      Accept: 'audio/mpeg',
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini-tts',
-      voice,
-      input: text,
-      instructions: YAP_TTS_INSTRUCTIONS,
-      response_format: 'mp3',
-      speed: 1.0
+      text,
+      model_id: 'eleven_flash_v2_5',
+      voice_settings: {
+        stability: 0.5,
+        similarity_boost: 0.75,
+        style: 0,
+        use_speaker_boost: true
+      }
     })
   });
 
