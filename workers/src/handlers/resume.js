@@ -24,8 +24,11 @@ import { buildResumptionPrompt } from '../prompts.js';
 import { synthesize, arrayBufferToBase64, resolveVoice } from '../lib/tts.js';
 
 const RECENT_MOMENT_WINDOW_MS = 72 * 60 * 60 * 1000;   // 72 hours
-const MIN_GAP_SINCE_LAST_ACTIVITY_MS = 4 * 60 * 60 * 1000; // 4 hours
-const RESUMPTION_COOLDOWN_MS = 60 * 60 * 1000;         // 1 hour
+// TESTING-MODE GATES — revert before real users.
+// Production values: MIN_GAP_SINCE_LAST_ACTIVITY_MS = 4 * 60 * 60 * 1000;
+//                    RESUMPTION_COOLDOWN_MS = 60 * 60 * 1000;
+const MIN_GAP_SINCE_LAST_ACTIVITY_MS = 2 * 60 * 1000;  // 2 minutes (TESTING)
+const RESUMPTION_COOLDOWN_MS = 30 * 1000;              // 30 seconds (TESTING)
 const MOMENT_FETCH_LIMIT = 5;
 
 // Light sanitizer — same banned-word safety net as /api/talk. If the model
