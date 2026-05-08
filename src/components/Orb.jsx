@@ -3,13 +3,17 @@ import React from 'react';
 // Yap the Pinecone. Wanders the Talk view, reacts to conversation state.
 //
 // Asset contract:
-//   public/yap.webm — VP9-with-alpha, used by Chrome/Firefox/Edge
-//   public/yap.mp4  — HEVC-with-alpha, used by Safari/iOS (the PWA's home)
-//   public/yap.png  — static fallback if neither video loads
+//   public/yap.webm — VP9-with-alpha. Plays on Chrome, Firefox, Edge, and
+//                     iOS Safari 17.4+. The animated mascot.
+//   public/yap.png  — transparent PNG fallback for older iOS Safari that
+//                     can't decode VP9-alpha. Static but at least transparent.
 //
-// At least one of the three must exist. Browsers pick the first source they
-// can play; if all sources fail, we fall back to the warm brown gradient orb
-// so the app keeps shipping.
+// If both fail, we render the warm brown gradient orb so the app keeps
+// shipping.
+//
+// We intentionally do NOT list an MP4 source. H.264 has no alpha channel,
+// and HEVC-with-alpha needs a special encoder pipeline. WebM-with-alpha
+// covers our PWA target (iPhone, recent iOS).
 
 const SIZE = 160;
 
@@ -52,8 +56,6 @@ export default function Orb({ state = 'idle', level = 0 }) {
                 style={{ filter: 'drop-shadow(0 10px 18px rgba(107, 68, 35, 0.28))' }}
               >
                 <source src="/yap.webm" type="video/webm" />
-                <source src="/yap.mp4" type="video/mp4; codecs=hvc1" />
-                <source src="/yap.mp4" type="video/mp4" />
               </video>
             ) : !imgFailed ? (
               <img
