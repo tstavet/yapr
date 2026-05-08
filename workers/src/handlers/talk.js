@@ -24,18 +24,7 @@ import {
   INCREMENTAL_FACT_PROMPT,
   INCREMENTAL_EPISODIC_PROMPT
 } from '../prompts.js';
-
-// ElevenLabs voice ID for Gigi — the default Yap voice.
-// profiles.buddy_voice may still hold legacy OpenAI voice names ('shimmer',
-// 'alloy', etc.) for users created before the ElevenLabs swap; resolveVoice()
-// detects those and falls back to this default.
-const ELEVENLABS_DEFAULT_VOICE = 'n7Wi4g1bhpw4Bs8HK5ph';
-
-function resolveVoice(stored) {
-  // ElevenLabs IDs are ~20 chars; OpenAI voice names ('shimmer', 'alloy'…) are short.
-  if (typeof stored === 'string' && stored.length >= 16) return stored;
-  return ELEVENLABS_DEFAULT_VOICE;
-}
+import { synthesize, arrayBufferToBase64, resolveVoice } from '../lib/tts.js';
 
 // Banned words. Stripped from anything Yap says before it reaches TTS or
 // the visible transcript. Belt-and-suspenders for the prompt rule —
@@ -370,42 +359,6 @@ export async function handleTalk(request, env, ctx) {
       'X-Accel-Buffering': 'no'
     }
   });
-}
-
-async function synthesize(text, env, voice) {
-  const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
-    method: 'POST',
-    headers: {
-      'xi-api-key': env.ELEVENLABS_API_KEY,
-      Accept: 'audio/mpeg',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      text,
-      model_id: 'eleven_flash_v2_5',
-      voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.75,
-        style: 0,
-        use_speaker_boost: true
-      }
-    })
-  });
-  if (!resp.ok) {
-    const err = await resp.text().catch(() => '');
-    throw new Error(`TTS ${resp.status}: ${err.slice(0, 200)}`);
-  }
-  return await resp.arrayBuffer();
-}
-
-function arrayBufferToBase64(buffer) {
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
-  }
-  return btoa(binary);
 }
 
 // Per-turn fact extraction. Looks at just the latest exchange + already-known

@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
-import { streamTalk, endConversation } from '../lib/api';
+import { streamTalk, streamResume, endConversation } from '../lib/api';
 import { StreamingAudioPlayer } from '../lib/audioPlayer';
 import Orb from '../components/Orb';
 
@@ -27,6 +27,12 @@ export default function Talk() {
   const conversationIdRef = useRef(null);
   const inactivityTimerRef = useRef(null);
   const autoStopFiredRef = useRef(false);
+  // Resumption opener: fetched on mount, played on the first idle tap so iOS
+  // autoplay policy is happy. resumeFiredRef ensures we only fetch once per
+  // mount; resumeQueueRef holds the audio + text + recall + conversationId
+  // until the user gestures.
+  const resumeFiredRef = useRef(false);
+  const resumeQueueRef = useRef(null);
 
   const getAudioContext = useCallback(() => {
     if (!audioCtxRef.current) {
@@ -58,6 +64,45 @@ export default function Talk() {
         conversationIdRef.current = null;
       }
     }, 30 * 60 * 1000);
+  }, []);
+
+  // On mount, ask the server whether we should open with a callback to a
+  // recent moment. The server gates on recency / cooldown / first-session;
+  // if any gate fails it returns { type: 'skip' } and we do nothing. If it
+  // fires, we queue the audio chunks + text and wait for the user's first
+  // idle tap before playing — iOS autoplay would otherwise block it.
+  useEffect(() => {
+    if (resumeFiredRef.current) return;
+    resumeFiredRef.current = true;
+
+    (async () => {
+      try {
+        const queue = { audioChunks: [], text: '', recall: [], conversationId: null };
+        let skip = false;
+        await streamResume(async (evt) => {
+          if (evt.type === 'skip') {
+            skip = true;
+          } else if (evt.type === 'recall') {
+            queue.recall = Array.isArray(evt.items) ? evt.items.slice(0, 3) : [];
+          } else if (evt.type === 'text') {
+            queue.text += evt.delta;
+          } else if (evt.type === 'audio') {
+            queue.audioChunks.push(evt.b64);
+          } else if (evt.type === 'done') {
+            queue.conversationId = evt.conversationId;
+          } else if (evt.type === 'error') {
+            console.warn('resume error:', evt.message);
+            skip = true;
+          }
+        });
+        if (!skip && queue.audioChunks.length > 0 && queue.text) {
+          resumeQueueRef.current = queue;
+        }
+      } catch (e) {
+        // Network errors or auth flake — just don't fire a resumption.
+        console.warn('resume fetch failed:', e);
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -156,6 +201,39 @@ export default function Talk() {
     }
 
     if (state === 'idle') {
+      // First idle tap with a queued resumption: play the opener instead of
+      // opening the mic. iOS autoplay is now satisfied (user just gestured).
+      if (resumeQueueRef.current) {
+        const queue = resumeQueueRef.current;
+        resumeQueueRef.current = null;
+
+        setLastTranscript('');
+        setRecallHints(queue.recall);
+        setLastReply(queue.text);
+
+        const player = new StreamingAudioPlayer(getAudioContext());
+        playerRef.current = player;
+        setState('speaking');
+
+        for (const b64 of queue.audioChunks) {
+          player.enqueue(b64).catch((err) => console.error('decode:', err));
+        }
+
+        if (queue.conversationId) {
+          conversationIdRef.current = queue.conversationId;
+          scheduleEnd();
+        }
+
+        try {
+          await player.waitForEnd();
+        } catch (err) {
+          console.error('resume playback:', err);
+        }
+        if (playerRef.current === player) playerRef.current = null;
+        setState('idle');
+        return;
+      }
+
       try {
         autoStopFiredRef.current = false;
         await start();

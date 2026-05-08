@@ -5,6 +5,7 @@ import { handleChat } from './handlers/chat.js';
 import { handleTranscribe } from './handlers/transcribe.js';
 import { handleSpeak } from './handlers/speak.js';
 import { handleTalk } from './handlers/talk.js';
+import { handleResume } from './handlers/resume.js';
 import { handleEndConversation } from './handlers/end-conversation.js';
 
 const corsHeaders = (origin) => ({
@@ -38,6 +39,9 @@ export default {
           break;
         case '/api/talk':
           response = await handleTalk(request, env, ctx);
+          break;
+        case '/api/resume':
+          response = await handleResume(request, env, ctx);
           break;
         case '/api/end-conversation':
           response = await handleEndConversation(request, env, ctx);

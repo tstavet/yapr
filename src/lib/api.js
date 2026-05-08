@@ -110,6 +110,53 @@ export async function streamTalk(audioOrText, onEvent) {
   }
 }
 
+/**
+ * Resumption opener. Called once per session on Talk mount. Server gates on
+ * recency / cooldown / first-session and returns { type: 'skip' } if it
+ * shouldn't fire — caller should treat skip as "do nothing."
+ *
+ * Same SSE event shape as streamTalk: recall / text / audio / done / skip /
+ * error. Resolves when the stream closes.
+ */
+export async function streamResume(onEvent) {
+  const headers = { ...(await authHeaders()), 'Content-Type': 'application/json' };
+  const resp = await fetch(`${WORKER_URL}/api/resume`, {
+    method: 'POST',
+    headers,
+    body: '{}'
+  });
+  if (!resp.ok || !resp.body) {
+    const txt = await resp.text().catch(() => '');
+    throw new Error(`resume: ${resp.status} ${txt}`);
+  }
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    const messages = buffer.split('\n\n');
+    buffer = messages.pop();
+
+    for (const msg of messages) {
+      const line = msg.trim();
+      if (!line.startsWith('data:')) continue;
+      const data = line.slice(5).trim();
+      if (!data) continue;
+      try {
+        const event = JSON.parse(data);
+        await onEvent(event);
+      } catch (err) {
+        console.warn('bad SSE event', data, err);
+      }
+    }
+  }
+}
+
 export async function endConversation(conversationId) {
   const headers = { ...(await authHeaders()), 'Content-Type': 'application/json' };
   await fetch(`${WORKER_URL}/api/end-conversation`, {
