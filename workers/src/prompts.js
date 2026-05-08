@@ -91,10 +91,6 @@ function formatFacts(facts) {
     .join('\n');
 }
 
-// TTS tone steering. Used by /api/speak and /api/talk.
-// Edit this string to change how Yap sounds without redeploying voices.
-export const YAP_TTS_INSTRUCTIONS = `You are a warm, engaged friend on the phone with someone you care about. Speak naturally and conversationally — fragments and reactions, not careful sentences. Smile while you speak — you can hear it. Pace is relaxed and lively, not rushed, not slow. Sound like you're genuinely interested in what she's saying. Never sound flat, robotic, or formal.`;
-
 // Separate prompt for the background fact-extraction job.
 // Runs on Haiku after each conversation. Cheap and fast.
 export const FACT_EXTRACTION_PROMPT = `You are reading a conversation between a user and her friend Yap.
