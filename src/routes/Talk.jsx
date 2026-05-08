@@ -274,8 +274,8 @@ export default function Talk() {
   }[state];
 
   return (
-    <main className="relative z-10 min-h-screen flex flex-col">
-      <header className="flex items-center justify-between px-6 pt-6 md:px-10">
+    <main className="relative z-10 h-screen h-[100dvh] flex flex-col overflow-hidden">
+      <header className="flex-shrink-0 flex items-center justify-between px-6 pt-6 md:px-10">
         <span className="display text-2xl tracking-tight text-brown">
           Yapr<span className="text-brown">.</span>
         </span>
@@ -289,7 +289,7 @@ export default function Talk() {
 
       <button
         onClick={handleTap}
-        className="flex-1 relative w-full px-6 pb-12 focus:outline-none text-left"
+        className="flex-1 min-h-0 relative w-full px-6 focus:outline-none text-left"
         aria-label={statusLabel}
       >
         <Orb state={state} level={level} />
@@ -312,7 +312,7 @@ export default function Talk() {
       </button>
 
       {(lastTranscript || lastReply) && (
-        <div className="px-6 pb-10 md:px-10 max-w-2xl mx-auto w-full space-y-4 text-sm opacity-70 hover:opacity-100 transition-opacity">
+        <div className="flex-shrink-0 px-6 pt-2 pb-6 md:px-10 max-w-2xl mx-auto w-full space-y-2 text-sm opacity-70 hover:opacity-100 transition-opacity max-h-[28vh] overflow-y-auto">
           {lastTranscript && (
             <p className="text-mist">
               <span className="text-brown/60 uppercase tracking-[0.2em] text-xs mr-3">You</span>
