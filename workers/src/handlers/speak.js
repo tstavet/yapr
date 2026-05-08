@@ -9,13 +9,7 @@
 
 import { requireUser } from '../lib/auth.js';
 import { createSupabase } from '../lib/supabase.js';
-
-const ELEVENLABS_DEFAULT_VOICE = 'n7Wi4g1bhpw4Bs8HK5ph';
-
-function resolveVoice(stored) {
-  if (typeof stored === 'string' && stored.length >= 16) return stored;
-  return ELEVENLABS_DEFAULT_VOICE;
-}
+import { resolveVoice } from '../lib/tts.js';
 
 export async function handleSpeak(request, env) {
   if (request.method !== 'POST') {
