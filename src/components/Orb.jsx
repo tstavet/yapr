@@ -3,15 +3,14 @@ import React from 'react';
 // Yap the Pinecone. Wanders the Talk view, reacts to conversation state.
 //
 // Asset contract:
-//   public/yap.png — transparent PNG of Yap (square aspect recommended).
-//   If the file is missing, we fall back to the warm brown gradient orb so
-//   the app keeps shipping while the asset is being prepped.
+//   public/yap.webm — VP9-with-alpha, used by Chrome/Firefox/Edge
+//   public/yap.mp4  — HEVC-with-alpha, used by Safari/iOS (the PWA's home)
+//   public/yap.png  — static fallback if neither video loads
 //
-// Pass-2 swap: replace the <img> below with <Lottie animationData={yapJson} />
-// from lottie-react. Drop the .json at public/yap.json (or import it) and the
-// surrounding wander/state motion keeps working unchanged.
+// At least one of the three must exist. Browsers pick the first source they
+// can play; if all sources fail, we fall back to the warm brown gradient orb
+// so the app keeps shipping.
 
-const YAP_SRC = '/yap.png';
 const SIZE = 160;
 
 const STATE_MOTION = {
@@ -22,6 +21,7 @@ const STATE_MOTION = {
 };
 
 export default function Orb({ state = 'idle', level = 0 }) {
+  const [videoFailed, setVideoFailed] = React.useState(false);
   const [imgFailed, setImgFailed] = React.useState(false);
   const reactiveScale = state === 'listening' ? 1 + level * 0.18 : 1;
   const motion = STATE_MOTION[state] || STATE_MOTION.idle;
@@ -40,7 +40,31 @@ export default function Orb({ state = 'idle', level = 0 }) {
           }}
         >
           <div className={`w-full h-full ${motion}`}>
-            {imgFailed ? (
+            {!videoFailed ? (
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                onError={() => setVideoFailed(true)}
+                className="w-full h-full object-contain select-none"
+                style={{ filter: 'drop-shadow(0 10px 18px rgba(107, 68, 35, 0.28))' }}
+              >
+                <source src="/yap.webm" type="video/webm" />
+                <source src="/yap.mp4" type="video/mp4; codecs=hvc1" />
+                <source src="/yap.mp4" type="video/mp4" />
+              </video>
+            ) : !imgFailed ? (
+              <img
+                src="/yap.png"
+                alt=""
+                draggable={false}
+                onError={() => setImgFailed(true)}
+                className="w-full h-full object-contain select-none"
+                style={{ filter: 'drop-shadow(0 10px 18px rgba(107, 68, 35, 0.28))' }}
+              />
+            ) : (
               <div
                 className="w-full h-full rounded-full"
                 style={{
@@ -49,15 +73,6 @@ export default function Orb({ state = 'idle', level = 0 }) {
                   boxShadow:
                     'inset 0 0 40px rgba(61, 40, 23, 0.5), 0 12px 32px rgba(107, 68, 35, 0.25)'
                 }}
-              />
-            ) : (
-              <img
-                src={YAP_SRC}
-                alt=""
-                draggable={false}
-                onError={() => setImgFailed(true)}
-                className="w-full h-full object-contain select-none"
-                style={{ filter: 'drop-shadow(0 10px 18px rgba(107, 68, 35, 0.28))' }}
               />
             )}
           </div>
