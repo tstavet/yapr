@@ -287,29 +287,29 @@ export default function Talk() {
         </button>
       </header>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
+      <button
+        onClick={handleTap}
+        className="flex-1 relative w-full px-6 pb-12 focus:outline-none text-left"
+        aria-label={statusLabel}
+      >
+        <Orb state={state} level={level} />
+
         {recallHints.length > 0 && (
-          <div className="mb-10 text-center text-xs uppercase tracking-[0.2em]">
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 text-center text-xs uppercase tracking-[0.2em] z-10 pointer-events-none">
             <p className="text-brown">Remembering...</p>
           </div>
         )}
 
-        <button
-          onClick={handleTap}
-          className="group focus:outline-none"
-          aria-label={statusLabel}
-        >
-          <Orb state={state} level={level} />
-        </button>
-
-        <p className="mt-16 display text-3xl md:text-4xl italic text-brown">
+        <p className="absolute bottom-12 left-1/2 -translate-x-1/2 display text-3xl md:text-4xl italic text-brown whitespace-nowrap z-10 pointer-events-none">
           {statusLabel}
         </p>
 
         {error && (
-          <p className="mt-4 text-brown text-sm max-w-md text-center">{error}</p>
+          <p className="absolute bottom-28 left-1/2 -translate-x-1/2 text-brown text-sm max-w-md text-center px-6 z-10 pointer-events-none">
+            {error}
+          </p>
         )}
-      </div>
+      </button>
 
       {(lastTranscript || lastReply) && (
         <div className="px-6 pb-10 md:px-10 max-w-2xl mx-auto w-full space-y-4 text-sm opacity-70 hover:opacity-100 transition-opacity">
