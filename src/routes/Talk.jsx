@@ -300,12 +300,12 @@ export default function Talk() {
           </div>
         )}
 
-        <p className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 display text-3xl md:text-4xl italic text-brown whitespace-nowrap z-10 pointer-events-none">
+        <p className="absolute bottom-[26vh] md:bottom-12 left-1/2 -translate-x-1/2 display text-3xl md:text-4xl italic text-brown whitespace-nowrap z-10 pointer-events-none">
           {statusLabel}
         </p>
 
         {error && (
-          <p className="absolute bottom-20 md:bottom-28 left-1/2 -translate-x-1/2 text-brown text-sm max-w-md text-center px-6 z-10 pointer-events-none">
+          <p className="absolute bottom-[34vh] md:bottom-28 left-1/2 -translate-x-1/2 text-brown text-sm max-w-md text-center px-6 z-10 pointer-events-none">
             {error}
           </p>
         )}
