@@ -69,7 +69,7 @@ export default function Login() {
           <h1 className="font-oswald font-bold text-7xl md:text-8xl tracking-[0.005em] mb-3 text-brown">
             Yapr
           </h1>
-          <p className="font-dmsans font-medium text-mist text-sm">
+          <p className="font-dmsans font-medium text-ink text-sm">
             The AI buddy you yap with.
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function Login() {
         {status === 'sent' ? (
           <div className="text-center space-y-4">
             <p className="font-oswald font-bold text-2xl tracking-[0.005em] text-brown">Check your email</p>
-            <p className="text-mist text-sm">
+            <p className="text-ink text-sm">
               We sent a link to <span className="text-brown">{email}</span>
             </p>
             <button
@@ -87,7 +87,7 @@ export default function Login() {
                 setEmail('');
                 setPassword('');
               }}
-              className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
+              className="text-ink hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
             >
               Use a different email
             </button>
@@ -105,7 +105,7 @@ export default function Login() {
                 placeholder="Your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-ink/30 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-ink/50 focus:outline-none transition-colors"
               />
             </div>
 
@@ -119,14 +119,14 @@ export default function Login() {
                 placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-ink/30 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-ink/50 focus:outline-none transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={status === 'working'}
-              className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-dmsans"
             >
               {status === 'working' ? 'Logging in…' : 'Log in'}
             </button>
@@ -143,7 +143,7 @@ export default function Login() {
                   setStatus('idle');
                   setErrorMsg('');
                 }}
-                className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
+                className="text-ink hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
               >
                 First time, or forgot your password?
               </button>
@@ -162,14 +162,14 @@ export default function Login() {
                 placeholder="Your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-ink/30 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-ink/50 focus:outline-none transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={status === 'working'}
-              className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-dmsans"
             >
               {status === 'working' ? 'Sending…' : 'Send me a link'}
             </button>
@@ -186,7 +186,7 @@ export default function Login() {
                   setStatus('idle');
                   setErrorMsg('');
                 }}
-                className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
+                className="text-ink hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
               >
                 Log in with password instead
               </button>
@@ -194,7 +194,7 @@ export default function Login() {
           </form>
         )}
 
-        <p className="mt-16 text-center text-mist/80 text-xs italic">
+        <p className="mt-16 text-center text-ink/70 text-xs italic">
           For Victoria, with love.
         </p>
       </div>

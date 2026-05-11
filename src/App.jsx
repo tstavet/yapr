@@ -56,9 +56,8 @@ export default function App() {
   if (loading) {
     return (
       <div className="relative min-h-screen flex items-center justify-center">
-        <div className="atmosphere" />
         <div className="grain" />
-        <p className="font-dmsans font-medium text-mist text-base">A moment…</p>
+        <p className="font-dmsans font-medium text-ink text-base">A moment…</p>
       </div>
     );
   }
@@ -67,9 +66,8 @@ export default function App() {
   if (session && passwordSet === null) {
     return (
       <div className="relative min-h-screen flex items-center justify-center">
-        <div className="atmosphere" />
         <div className="grain" />
-        <p className="font-dmsans font-medium text-mist text-base">A moment…</p>
+        <p className="font-dmsans font-medium text-ink text-base">A moment…</p>
       </div>
     );
   }
@@ -77,11 +75,10 @@ export default function App() {
   const skippedThisSession = sessionStorage.getItem('yapr.skipSetPassword') === '1';
   const needsPassword = session && passwordSet === false && !skippedThisSession;
 
-  // Wrapper for in-app routes — keeps the atmospheric gradients and paper
-  // grain on Login/Talk/SetPassword. Marketing renders its own background.
+  // Wrapper for in-app routes — adds the neutral paper grain over the tan
+  // background. Marketing renders its own background.
   const inAppShell = (children) => (
     <>
-      <div className="atmosphere" />
       <div className="grain" />
       {children}
     </>

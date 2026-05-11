@@ -281,7 +281,7 @@ export default function Talk() {
         </span>
         <button
           onClick={handleSignOut}
-          className="font-dmsans font-medium text-mist hover:text-brown text-sm transition-colors"
+          className="font-dmsans font-medium text-ink hover:text-brown text-sm transition-colors"
         >
           Sign out
         </button>
@@ -317,16 +317,16 @@ export default function Talk() {
       </button>
 
       {(lastTranscript || lastReply) && (
-        <div className="flex-shrink-0 px-6 pt-2 pb-6 md:px-10 max-w-2xl mx-auto w-full space-y-2 text-sm opacity-70 hover:opacity-100 transition-opacity max-h-[28vh] overflow-y-auto">
+        <div className="flex-shrink-0 px-6 pt-2 pb-6 md:px-10 max-w-2xl mx-auto w-full space-y-2 text-sm opacity-70 hover:opacity-100 transition-opacity max-h-[28vh] overflow-y-auto font-dmsans">
           {lastTranscript && (
-            <p className="text-mist">
-              <span className="text-brown/60 text-xs font-medium mr-3">You</span>
+            <p className="text-ink">
+              <span className="text-ink text-xs font-semibold mr-3">You</span>
               {lastTranscript}
             </p>
           )}
           {lastReply && (
-            <p className="text-brown">
-              <span className="text-brown text-xs font-medium mr-3">Yap</span>
+            <p className="text-ink">
+              <span className="text-brown text-xs font-semibold mr-3">Yap</span>
               {lastReply}
             </p>
           )}

@@ -64,7 +64,7 @@ export default function SetPassword({ userId, onDone }) {
           <h1 className="font-oswald font-bold text-5xl md:text-6xl tracking-[0.005em] mb-4 text-brown">
             Set a password
           </h1>
-          <p className="font-dmsans text-mist text-sm">
+          <p className="font-dmsans text-ink text-sm">
             So you can log back in without waiting for an email.
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function SetPassword({ userId, onDone }) {
               placeholder="New password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
+              className="w-full bg-transparent border-b border-ink/30 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-ink/50 focus:outline-none transition-colors"
             />
           </div>
 
@@ -95,14 +95,14 @@ export default function SetPassword({ userId, onDone }) {
               placeholder="Confirm password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
+              className="w-full bg-transparent border-b border-ink/30 focus:border-brown pb-3 pt-2 text-lg text-ink placeholder:text-ink/50 focus:outline-none transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={status === 'working'}
-            className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-dmsans"
           >
             {status === 'working' ? 'Saving…' : 'Save password'}
           </button>
@@ -115,7 +115,7 @@ export default function SetPassword({ userId, onDone }) {
             <button
               type="button"
               onClick={handleSkip}
-              className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
+              className="text-ink hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
             >
               Skip for now
             </button>
