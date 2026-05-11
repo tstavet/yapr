@@ -3,18 +3,24 @@ import React from 'react';
 // Yap the Pinecone. The video itself carries the dance; we just center it.
 //
 // Asset contract (in source order):
-//   public/yap.webm — VP9 with true alpha (yuva420p, BT.709). Lets the page
-//                     cream + atmosphere gradient show through cleanly so
-//                     there's no halo. Supported by Chrome, Firefox, and
-//                     Safari 17.4+. Browsers that can't decode VP9 alpha
-//                     fall through to the MP4 below.
+//   public/yap.webm — VP9 with true alpha (yuva420p, BT.709). Modern Chrome,
+//                     Firefox, and iOS Safari 17.4+ render this with the page
+//                     showing cleanly through.
 //   public/yap.mp4  — H.264 with the page-cream background painted in.
-//                     Universal fallback for older Safari; ~2 RGB units off
-//                     the page cream, so a faint square may be visible.
-//   public/yap.png  — Transparent PNG fallback if neither video plays.
+//                     Universal fallback for older Safari.
+//   public/yap.png  — Static PNG fallback if neither video plays.
 //
-// If everything fails we render the warm brown gradient orb so the app
+// Whichever source plays, we feather the edges with a CSS mask so the
+// painted-cream background of the MP4 (and any 1px halo on the WebM) fades
+// smoothly into the page instead of leaving a visible square. The mask is
+// an ellipse offset to 50%/55% — Yap's bounding box leans downward in the
+// Veo render, so the solid zone has to reach a little lower than higher.
+//
+// If every asset 404s we render the warm brown gradient orb so the app
 // keeps shipping.
+
+const FEATHER_MASK =
+  'radial-gradient(ellipse 55% 65% at 50% 55%, black 78%, transparent 100%)';
 
 export default function Orb() {
   const [videoFailed, setVideoFailed] = React.useState(false);
@@ -22,12 +28,16 @@ export default function Orb() {
 
   return (
     <div
-      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      className="absolute inset-0 flex items-center justify-center pointer-events-none pb-[18vh]"
       aria-hidden="true"
     >
       <div
         className="aspect-square"
-        style={{ width: 'clamp(260px, 62vmin, 520px)' }}
+        style={{
+          width: 'clamp(260px, 62vmin, 520px)',
+          WebkitMaskImage: FEATHER_MASK,
+          maskImage: FEATHER_MASK
+        }}
       >
         {!videoFailed ? (
           <video
