@@ -276,7 +276,7 @@ export default function Talk() {
   return (
     <main className="relative z-10 h-screen h-[100svh] flex flex-col overflow-hidden">
       <header className="flex-shrink-0 flex items-center justify-between px-6 pt-6 md:px-10">
-        <span className="font-oswald font-bold text-2xl tracking-[0.005em] text-brown">
+        <span className="font-oswald font-bold uppercase text-2xl tracking-[0.005em] text-brown">
           Yapr
         </span>
         <button
@@ -298,7 +298,7 @@ export default function Talk() {
             biased upward) on desktop. */}
         <div className="absolute inset-0 flex flex-col items-center pointer-events-none pt-[3vh] md:pt-0 justify-start md:justify-center md:pb-[10vh]">
           <Orb state={state} level={level} />
-          <p className="font-oswald font-bold text-3xl md:text-4xl tracking-[0.005em] text-brown whitespace-nowrap mt-4 md:mt-10 z-10">
+          <p className="font-oswald font-bold uppercase text-3xl md:text-4xl tracking-[0.005em] text-brown whitespace-nowrap mt-4 md:mt-10 z-10">
             {statusLabel}
           </p>
         </div>

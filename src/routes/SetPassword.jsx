@@ -61,7 +61,7 @@ export default function SetPassword({ userId, onDone }) {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="font-oswald font-bold text-5xl md:text-6xl tracking-[0.005em] mb-4 text-brown">
+          <h1 className="font-oswald font-bold uppercase text-5xl md:text-6xl tracking-[0.005em] mb-4 text-brown">
             Set a password
           </h1>
           <p className="font-dmsans text-ink text-sm">

@@ -66,7 +66,7 @@ export default function Login() {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="font-oswald font-bold text-7xl md:text-8xl tracking-[0.005em] mb-3 text-brown">
+          <h1 className="font-oswald font-bold uppercase text-7xl md:text-8xl tracking-[0.005em] mb-3 text-brown">
             Yapr
           </h1>
           <p className="font-dmsans font-medium text-ink text-sm">
@@ -76,7 +76,7 @@ export default function Login() {
 
         {status === 'sent' ? (
           <div className="text-center space-y-4">
-            <p className="font-oswald font-bold text-2xl tracking-[0.005em] text-brown">Check your email</p>
+            <p className="font-oswald font-bold uppercase text-2xl tracking-[0.005em] text-brown">Check your email</p>
             <p className="text-ink text-sm">
               We sent a link to <span className="text-brown">{email}</span>
             </p>
