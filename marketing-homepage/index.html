@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yapr — Your AI buddy to yap with</title>
+<meta name="description" content="Yap is here whenever. Voice-first AI you can vent, gossip, and ramble with.">
+
+<!-- Oswald 700 — SIL OFL 1.1, free for commercial use -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Oswald:wght@700&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+
+<!-- Preload the hero pose so it doesn't pop in late -->
+<link rel="preload" as="image" href="yap-walking.png">
+
+<style>
+  :root {
+    --bg: #F1EADB;
+    --bg-alt: #EDE4D1;
+    --brown: #6b4423;
+    --brown-deep: #4a2f18;
+    --brown-soft: #8a6440;
+    --ink: #2a1a0d;
+    --muted: #8a7560;
+    --card: #ffffff;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 20%, rgba(255, 240, 215, 0.55) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ============ HEADER ============ */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 36px;
+    z-index: 50;
+  }
+
+  .menu-btn {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    border: 1.5px solid rgba(107, 68, 35, 0.35);
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .menu-btn:hover { background: rgba(255, 255, 255, 0.7); transform: scale(1.03); }
+  .menu-btn span {
+    display: block;
+    width: 18px; height: 1.75px;
+    background: var(--brown-deep);
+    border-radius: 2px;
+  }
+
+  .nav-actions { display: flex; gap: 12px; align-items: center; }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 26px;
+    border-radius: 16px;
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    border: none;
+  }
+  .pill-ghost {
+    color: var(--brown-deep);
+    background: rgba(255, 255, 255, 0.4);
+    border: 1.5px solid rgba(107, 68, 35, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .pill-ghost:hover { background: rgba(255, 255, 255, 0.7); transform: translateY(-1px); }
+  .pill-solid {
+    background: var(--card);
+    color: var(--brown-deep);
+    box-shadow: 0 1px 2px rgba(74, 47, 24, 0.08);
+  }
+  .pill-solid:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(74, 47, 24, 0.12); }
+  .pill-solid .icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+  .pill-solid .label-stack { display: flex; flex-direction: column; line-height: 1.1; text-align: left; }
+  .pill-solid .label-tiny { font-size: 10px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .pill-solid .label-big { font-size: 16px; font-weight: 700; color: var(--brown-deep); }
+
+  /* ============ MASCOT POSES ============
+     Each pose is a real PNG referenced via background-image, with its own
+     aspect-ratio so layouts don't shift. Six poses, one per section.
+     ===================================== */
+  .yap {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 12px 18px rgba(74, 47, 24, 0.18));
+  }
+  .yap-walking { background-image: url('yap-walking.png'); aspect-ratio: 544 / 686; }
+  .yap-coffee  { background-image: url('yap-coffee.png');  aspect-ratio: 555 / 767; }
+  .yap-kick    { background-image: url('yap-kick.png');    aspect-ratio: 537 / 845; }
+  .yap-stretch { background-image: url('yap-stretch.png'); aspect-ratio: 930 / 725; }
+  .yap-bounce  { background-image: url('yap-bounce.png');  aspect-ratio: 500 / 923; }
+  .yap-run     { background-image: url('yap-run.png');     aspect-ratio: 674 / 852; }
+
+  .yap--mirror { transform: scaleX(-1); }
+  .yap--bob { animation: float 4.5s ease-in-out infinite; transform-origin: 50% 85%; }
+  .yap--hop { animation: hop 1.8s ease-in-out infinite; }
+
+  /* ============ TYPOGRAPHY ============ */
+  .big {
+    font-family: 'Oswald', 'Arial Narrow', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--brown-deep);
+    line-height: 0.9;
+    letter-spacing: 0.005em;
+  }
+  .big--hero    { font-size: clamp(8rem, 24vw, 26rem); line-height: 0.85; }
+  .big--section { font-size: clamp(4rem, 11vw, 11rem); }
+  .big--label   { font-size: clamp(2rem, 4vw, 3.5rem); }
+
+  .body-lg {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.25rem, 2vw, 1.8rem);
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--ink);
+    max-width: 36ch;
+  }
+
+  /* ============ HERO ============ */
+  main.hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 140px 24px 80px;
+  }
+
+  .wordmark-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 2vw, 36px);
+    position: relative;
+    animation: rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .wordmark { user-select: none; }
+
+  .hero-mascot {
+    width: clamp(120px, 18vw, 260px);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .blips {
+    position: absolute;
+    top: 18%; left: -22px;
+    display: flex; flex-direction: column;
+    gap: 4px;
+    z-index: 2;
+  }
+  .blip {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--brown);
+    opacity: 0;
+    animation: blip 2.4s ease-in-out infinite;
+  }
+  .blip:nth-child(1) { animation-delay: 0s;   width: 6px; height: 6px; }
+  .blip:nth-child(2) { animation-delay: 0.3s; width: 9px; height: 9px; }
+  .blip:nth-child(3) { animation-delay: 0.6s; width: 7px; height: 7px; }
+
+  .tagline {
+    margin-top: clamp(28px, 4.5vw, 64px);
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    text-align: center;
+    animation: rise 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    opacity: 0.7;
+    animation: bob 2.4s ease-in-out infinite;
+  }
+
+  /* ============ SECTIONS: SHARED ============ */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: clamp(80px, 12vw, 180px) clamp(24px, 6vw, 96px);
+    overflow: hidden;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+                transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+  /* ============ SECTION: WHAT YAP IS FOR ============ */
+  .purpose {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: clamp(40px, 6vw, 96px);
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .purpose-text { display: flex; flex-direction: column; gap: 32px; }
+  .purpose .yap { width: 100%; max-width: 420px; justify-self: end; }
+
+  /* ============ SECTION: HOW IT WORKS ============ */
+  .how {
+    background: var(--bg-alt);
+    text-align: center;
+  }
+  .how-headline { text-align: center; margin-bottom: clamp(40px, 6vw, 80px); }
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(24px, 4vw, 64px);
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: end;
+  }
+  .how-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .how-num {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 2.4vw, 2.4rem);
+    color: var(--brown-soft);
+    letter-spacing: 0.1em;
+  }
+  .how-step .yap {
+    width: clamp(140px, 18vw, 220px);
+    /* Visually align each pose by their feet, so the bouncing/running */
+    /* don't float at different heights across the row */
+  }
+
+  /* ============ SECTION: YAP REMEMBERS ============ */
+  .memory {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .memory-headline { margin-bottom: clamp(48px, 6vw, 80px); max-width: 14ch; }
+  .memory-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 2.4vw, 36px);
+  }
+  .memory-list li {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(2rem, 5.5vw, 5rem);
+    line-height: 1;
+    color: var(--brown-deep);
+    letter-spacing: 0.005em;
+    border-bottom: 2px solid rgba(107, 68, 35, 0.18);
+    padding-bottom: clamp(16px, 2vw, 28px);
+  }
+  .memory .yap {
+    position: absolute;
+    top: -40px;
+    right: -20px;
+    width: clamp(180px, 24vw, 320px);
+  }
+
+  /* ============ SECTION: PRICING ============ */
+  .price {
+    background: var(--bg-alt);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(20px, 3vw, 40px);
+  }
+  .price .yap { width: clamp(160px, 22vw, 260px); margin-bottom: 8px; }
+  .price-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .big-cta {
+    margin-top: 16px;
+    display: inline-block;
+    padding: 22px 56px;
+    background: var(--brown-deep);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+    letter-spacing: 0.01em;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    box-shadow: 0 6px 24px rgba(74, 47, 24, 0.18);
+  }
+  .big-cta:hover { background: var(--brown); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(74, 47, 24, 0.25); }
+
+  /* ============ FOOTER ============ */
+  footer {
+    padding: 60px 24px 80px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .footer-mark {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 18px;
+    color: var(--brown-deep);
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+  .footer-whisper {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-links {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .footer-links a { color: var(--muted); text-decoration: none; }
+  .footer-links a:hover { color: var(--brown-deep); }
+
+  /* ============ ANIMATIONS ============ */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%      { transform: translateY(-14px) rotate(3deg); }
+  }
+  @keyframes hop {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+  @keyframes blip {
+    0%, 60%, 100% { opacity: 0; transform: translateX(0) scale(0.6); }
+    20%, 40%      { opacity: 0.85; transform: translateX(-6px) scale(1); }
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .purpose { grid-template-columns: 1fr; text-align: center; }
+    .purpose .yap { justify-self: center; max-width: 280px; }
+    .purpose-text { align-items: center; }
+    .body-lg { text-align: center; }
+    .how-grid { grid-template-columns: 1fr; gap: 56px; }
+    .memory .yap { position: relative; top: 0; right: 0; margin: 0 auto 32px; display: block; }
+    .memory-headline { max-width: none; text-align: center; }
+  }
+
+  @media (max-width: 760px) {
+    header { padding: 18px 20px; }
+    .nav-actions .pill-ghost { display: none; }
+    .pill { padding: 14px 18px; font-size: 14px; }
+    .pill-solid .label-tiny { display: none; }
+    .pill-solid .label-big { font-size: 14px; }
+    .menu-btn { width: 48px; height: 48px; }
+    main.hero { padding: 110px 16px 100px; }
+    .wordmark-row { gap: 8px; }
+    .blips { left: -16px; }
+  }
+
+  @media (max-width: 420px) {
+    .big--hero { font-size: clamp(5.5rem, 26vw, 9rem); }
+    .hero-mascot { width: 96px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <button class="menu-btn" aria-label="Open menu">
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav class="nav-actions">
+    <a href="#hear" class="pill pill-ghost" aria-label="Hear Yap talk">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="6 4 20 12 6 20 6 4"></polygon>
+      </svg>
+      <span>Hear Yap Talk</span>
+    </a>
+    <a href="#start" class="pill pill-solid" aria-label="Start yapping">
+      <span class="icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="2" width="12" height="20" rx="3"></rect>
+          <line x1="11" y1="18" x2="13" y2="18"></line>
+        </svg>
+      </span>
+      <span class="label-stack">
+        <span class="label-tiny">Start</span>
+        <span class="label-big">Yapping</span>
+      </span>
+    </a>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<main class="hero">
+  <div class="wordmark-row">
+    <h1 class="wordmark big big--hero">Yapr</h1>
+    <div class="hero-mascot" aria-hidden="true">
+      <div class="blips">
+        <span class="blip"></span>
+        <span class="blip"></span>
+        <span class="blip"></span>
+      </div>
+      <div class="yap yap-walking yap--bob" role="img" aria-label="Yap the Pinecone"></div>
+    </div>
+  </div>
+  <p class="tagline">Your AI buddy to yap with.</p>
+  <span class="scroll-hint">Scroll</span>
+</main>
+
+<!-- ============ WHAT YAP IS FOR ============ -->
+<section id="about" class="reveal">
+  <div class="purpose">
+    <div class="purpose-text">
+      <h2 class="big big--section">Yap is here<br>whenever.</h2>
+      <p class="body-lg">Perfect for venting, gossiping, and casual yapping. Just press to start chatting, and Yap remembers what matters so you can pick up where you left off.</p>
+    </div>
+    <div class="yap yap-coffee" role="img" aria-label="Yap holding a coffee mug, sitting cross-legged"></div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="how" class="how reveal">
+  <h2 class="big big--section how-headline">How it works.</h2>
+  <div class="how-grid">
+    <div class="how-step">
+      <div class="how-num">01</div>
+      <div class="yap yap-bounce yap--hop" aria-hidden="true"></div>
+      <div class="big big--label">Press</div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">02</div>
+      <div class="yap yap-kick" aria-hidden="true"></div>
+      <div class="big big--label">Talk</div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">03</div>
+      <div class="yap yap-run" aria-hidden="true"></div>
+      <div class="big big--label">Yap back</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ YAP REMEMBERS ============ -->
+<section id="memory" class="reveal">
+  <div class="memory">
+    <div class="yap yap-stretch" aria-hidden="true"></div>
+    <h2 class="big big--section memory-headline">Yap remembers.</h2>
+    <ul class="memory-list">
+      <li>Your dog's name.</li>
+      <li>The meeting Thursday.</li>
+      <li>How you take your coffee.</li>
+      <li>Why you're not speaking to Karen.</li>
+      <li>That show you keep meaning to start.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section id="start" class="price reveal">
+  <div class="yap yap-walking yap--mirror" aria-hidden="true"></div>
+  <h2 class="big big--section">$49 a month.</h2>
+  <p class="price-sub">Unlimited yapping. Cancel anytime.</p>
+  <a href="#" class="big-cta">Start yapping</a>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-mark">Yapr</div>
+  <div class="footer-whisper">For Victoria, with love.</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll-triggered reveal animation
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -80px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
