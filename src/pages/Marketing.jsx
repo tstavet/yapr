@@ -144,7 +144,7 @@ export default function Marketing({ session }) {
       {/* ============ HERO ============ */}
       <main className="relative z-[1] min-h-screen flex flex-col items-center justify-center px-4 pt-[110px] pb-[100px] min-[761px]:px-6 min-[761px]:pt-[140px] min-[761px]:pb-20">
         <div className="flex items-center justify-center gap-2 min-[761px]:gap-[clamp(12px,2vw,36px)] relative animate-rise">
-          <h1 className="mk-hero-wordmark font-oswald font-bold text-marketing-brown leading-[0.85] tracking-[0.005em] select-none">
+          <h1 className="mk-hero-wordmark font-oswald font-bold uppercase text-marketing-brown leading-[0.85] tracking-[0.005em] select-none">
             Yapr
           </h1>
           <div
@@ -185,7 +185,7 @@ export default function Marketing({ session }) {
         <div className="grid grid-cols-1 min-[901px]:grid-cols-[1.3fr_1fr] gap-[clamp(40px,6vw,96px)] items-center max-w-[1400px] mx-auto">
           <div className="flex flex-col gap-8 items-center text-center min-[901px]:items-start min-[901px]:text-left">
             <h2
-              className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
+              className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
             >
               Yap is here
@@ -216,7 +216,7 @@ export default function Marketing({ session }) {
         className="marketing-reveal relative z-[1] overflow-hidden bg-marketing-bg text-center px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
       >
         <h2
-          className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em] text-center mb-[clamp(40px,6vw,80px)]"
+          className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em] text-center mb-[clamp(40px,6vw,80px)]"
           style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
         >
           How it works.
@@ -224,7 +224,7 @@ export default function Marketing({ session }) {
         <div className="grid grid-cols-1 min-[901px]:grid-cols-3 gap-14 min-[901px]:gap-[clamp(24px,4vw,64px)] max-w-[1400px] mx-auto items-end">
           <div className="flex flex-col items-center gap-5">
             <div
-              className="font-oswald font-bold text-marketing-ink tracking-[0.1em]"
+              className="font-oswald font-bold uppercase text-marketing-ink tracking-[0.1em]"
               style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.4rem)' }}
             >
               01
@@ -238,7 +238,7 @@ export default function Marketing({ session }) {
               }}
             />
             <div
-              className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
+              className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
               Press
@@ -247,7 +247,7 @@ export default function Marketing({ session }) {
 
           <div className="flex flex-col items-center gap-5">
             <div
-              className="font-oswald font-bold text-marketing-ink tracking-[0.1em]"
+              className="font-oswald font-bold uppercase text-marketing-ink tracking-[0.1em]"
               style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.4rem)' }}
             >
               02
@@ -261,7 +261,7 @@ export default function Marketing({ session }) {
               }}
             />
             <div
-              className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
+              className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
               Talk
@@ -270,7 +270,7 @@ export default function Marketing({ session }) {
 
           <div className="flex flex-col items-center gap-5">
             <div
-              className="font-oswald font-bold text-marketing-ink tracking-[0.1em]"
+              className="font-oswald font-bold uppercase text-marketing-ink tracking-[0.1em]"
               style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.4rem)' }}
             >
               03
@@ -284,7 +284,7 @@ export default function Marketing({ session }) {
               }}
             />
             <div
-              className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
+              className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
               Yap back
@@ -308,7 +308,7 @@ export default function Marketing({ session }) {
             }}
           />
           <h2
-            className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em] mb-[clamp(48px,6vw,80px)] max-w-none text-center min-[901px]:max-w-[14ch] min-[901px]:text-left"
+            className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em] mb-[clamp(48px,6vw,80px)] max-w-none text-center min-[901px]:max-w-[14ch] min-[901px]:text-left"
             style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
           >
             Yap remembers.
@@ -323,7 +323,7 @@ export default function Marketing({ session }) {
             ].map((line) => (
               <li
                 key={line}
-                className="font-oswald font-bold leading-none text-marketing-brown tracking-[0.005em] border-b-2 border-marketing-brown/[0.18] pb-[clamp(16px,2vw,28px)]"
+                className="font-oswald font-bold uppercase leading-none text-marketing-brown tracking-[0.005em] border-b-2 border-marketing-brown/[0.18] pb-[clamp(16px,2vw,28px)]"
                 style={{ fontSize: 'clamp(2rem, 5.5vw, 5rem)' }}
               >
                 {line}
@@ -347,7 +347,7 @@ export default function Marketing({ session }) {
           }}
         />
         <h2
-          className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
+          className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
           style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
         >
           $99 a month.
@@ -369,7 +369,7 @@ export default function Marketing({ session }) {
 
       {/* ============ FOOTER ============ */}
       <footer className="relative z-[1] text-center px-6 pt-[60px] pb-20">
-        <div className="font-oswald font-bold text-[18px] text-marketing-brown tracking-[0.005em] mb-3">
+        <div className="font-oswald font-bold uppercase text-[18px] text-marketing-brown tracking-[0.005em] mb-3">
           Yapr
         </div>
         <div className="font-playfair italic text-[13px] text-marketing-ink">
