@@ -61,10 +61,10 @@ export default function SetPassword({ userId, onDone }) {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="display text-5xl md:text-6xl tracking-tight mb-4 text-brown">
-            Set a Password<span className="text-brown">.</span>
+          <h1 className="font-oswald font-bold uppercase text-5xl md:text-6xl tracking-[0.005em] mb-4 text-brown">
+            Set a Password
           </h1>
-          <p className="text-mist text-sm">
+          <p className="font-dmsans text-mist text-sm">
             So you can log back in without waiting for an email.
           </p>
         </div>
