@@ -66,17 +66,17 @@ export default function Login() {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="font-oswald font-bold uppercase text-7xl md:text-8xl tracking-[0.005em] mb-3 text-brown">
+          <h1 className="font-oswald font-bold text-7xl md:text-8xl tracking-[0.005em] mb-3 text-brown">
             Yapr
           </h1>
-          <p className="font-dmsans font-medium text-mist text-sm uppercase tracking-[0.3em]">
-            The AI Buddy You Yap With
+          <p className="font-dmsans font-medium text-mist text-sm">
+            The AI buddy you yap with.
           </p>
         </div>
 
         {status === 'sent' ? (
           <div className="text-center space-y-4">
-            <p className="font-oswald font-bold uppercase text-2xl tracking-[0.005em] text-brown">Check Your Email</p>
+            <p className="font-oswald font-bold text-2xl tracking-[0.005em] text-brown">Check your email</p>
             <p className="text-mist text-sm">
               We sent a link to <span className="text-brown">{email}</span>
             </p>
@@ -89,7 +89,7 @@ export default function Login() {
               }}
               className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
             >
-              Use a Different Email
+              Use a different email
             </button>
           </div>
         ) : mode === 'password' ? (
@@ -102,7 +102,7 @@ export default function Login() {
                 required
                 autoFocus
                 autoComplete="email"
-                placeholder="Your Email"
+                placeholder="Your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
@@ -116,7 +116,7 @@ export default function Login() {
                 type="password"
                 required
                 autoComplete="current-password"
-                placeholder="Your Password"
+                placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
@@ -128,7 +128,7 @@ export default function Login() {
               disabled={status === 'working'}
               className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {status === 'working' ? 'Logging In…' : 'Log In'}
+              {status === 'working' ? 'Logging in…' : 'Log in'}
             </button>
 
             {status === 'error' && (
@@ -145,7 +145,7 @@ export default function Login() {
                 }}
                 className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
               >
-                First Time, or Forgot Your Password?
+                First time, or forgot your password?
               </button>
             </div>
           </form>
@@ -159,7 +159,7 @@ export default function Login() {
                 required
                 autoFocus
                 autoComplete="email"
-                placeholder="Your Email"
+                placeholder="Your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
@@ -171,7 +171,7 @@ export default function Login() {
               disabled={status === 'working'}
               className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {status === 'working' ? 'Sending…' : 'Send Me a Link'}
+              {status === 'working' ? 'Sending…' : 'Send me a link'}
             </button>
 
             {status === 'error' && (
@@ -188,7 +188,7 @@ export default function Login() {
                 }}
                 className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
               >
-                Log In with Password Instead
+                Log in with password instead
               </button>
             </div>
           </form>
