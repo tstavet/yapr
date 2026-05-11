@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
-import Login from './routes/Login';
+import Login from './pages/Login';
+import Marketing from './pages/Marketing';
 import Talk from './routes/Talk';
 import SetPassword from './routes/SetPassword';
 
@@ -76,40 +77,55 @@ export default function App() {
   const skippedThisSession = sessionStorage.getItem('yapr.skipSetPassword') === '1';
   const needsPassword = session && passwordSet === false && !skippedThisSession;
 
-  return (
+  // Wrapper for in-app routes — keeps the atmospheric gradients and paper
+  // grain on Login/Talk/SetPassword. Marketing renders its own background.
+  const inAppShell = (children) => (
     <>
       <div className="atmosphere" />
       <div className="grain" />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            !session
-              ? <Navigate to="/login" replace />
-              : needsPassword
-                ? <Navigate to="/set-password" replace />
-                : <Talk />
-          }
-        />
-        <Route
-          path="/login"
-          element={session ? <Navigate to="/" replace /> : <Login />}
-        />
-        <Route
-          path="/set-password"
-          element={
-            !session
-              ? <Navigate to="/login" replace />
-              : !needsPassword
-                ? <Navigate to="/" replace />
-                : <SetPassword
+      {children}
+    </>
+  );
+
+  return (
+    <Routes>
+      {/* Marketing landing at /. Public; if a session exists, Marketing itself
+          renders <Navigate to="/chat" /> using the session prop. */}
+      <Route path="/" element={<Marketing session={session} />} />
+
+      <Route
+        path="/login"
+        element={session ? <Navigate to="/chat" replace /> : inAppShell(<Login />)}
+      />
+
+      <Route
+        path="/chat"
+        element={
+          !session
+            ? <Navigate to="/login" replace />
+            : needsPassword
+              ? <Navigate to="/set-password" replace />
+              : inAppShell(<Talk />)
+        }
+      />
+
+      <Route
+        path="/set-password"
+        element={
+          !session
+            ? <Navigate to="/login" replace />
+            : !needsPassword
+              ? <Navigate to="/chat" replace />
+              : inAppShell(
+                  <SetPassword
                     userId={session.user.id}
                     onDone={() => setPasswordSet(true)}
                   />
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </>
+                )
+        }
+      />
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
