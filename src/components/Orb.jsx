@@ -3,11 +3,15 @@ import React from 'react';
 // Yap the Pinecone. The video itself carries the dance; we just center it.
 //
 // Asset contract (in source order):
+//   public/yap.webm — VP9 with true alpha (yuva420p, BT.709). Lets the page
+//                     cream + atmosphere gradient show through cleanly so
+//                     there's no halo. Supported by Chrome, Firefox, and
+//                     Safari 17.4+. Browsers that can't decode VP9 alpha
+//                     fall through to the MP4 below.
 //   public/yap.mp4  — H.264 with the page-cream background painted in.
-//                     Plays in every browser; the cream blends seamlessly
-//                     with the Talk page so Yap looks transparent.
-//   public/yap.webm — VP9-with-alpha for browsers that prefer WebM.
-//   public/yap.png  — transparent fallback if neither video plays.
+//                     Universal fallback for older Safari; ~2 RGB units off
+//                     the page cream, so a faint square may be visible.
+//   public/yap.png  — Transparent PNG fallback if neither video plays.
 //
 // If everything fails we render the warm brown gradient orb so the app
 // keeps shipping.
@@ -35,8 +39,8 @@ export default function Orb() {
             onError={() => setVideoFailed(true)}
             className="w-full h-full object-contain select-none"
           >
-            <source src="/yap.mp4" type="video/mp4" />
             <source src="/yap.webm" type="video/webm" />
+            <source src="/yap.mp4" type="video/mp4" />
           </video>
         ) : !imgFailed ? (
           <img
