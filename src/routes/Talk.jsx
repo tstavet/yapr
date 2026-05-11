@@ -267,23 +267,23 @@ export default function Talk() {
   }
 
   const statusLabel = {
-    idle: 'Tap to Talk',
+    idle: 'Tap to talk',
     listening: 'Listening…',
     thinking: 'Thinking…',
-    speaking: 'Tap to Interrupt'
+    speaking: 'Tap to interrupt'
   }[state];
 
   return (
     <main className="relative z-10 h-screen h-[100svh] flex flex-col overflow-hidden">
       <header className="flex-shrink-0 flex items-center justify-between px-6 pt-6 md:px-10">
-        <span className="font-oswald font-bold uppercase text-2xl tracking-[0.005em] text-brown">
+        <span className="font-oswald font-bold text-2xl tracking-[0.005em] text-brown">
           Yapr
         </span>
         <button
           onClick={handleSignOut}
-          className="font-dmsans font-medium text-mist hover:text-brown text-xs uppercase tracking-[0.2em] transition-colors"
+          className="font-dmsans font-medium text-mist hover:text-brown text-sm transition-colors"
         >
-          Sign Out
+          Sign out
         </button>
       </header>
 
@@ -298,14 +298,14 @@ export default function Talk() {
             biased upward) on desktop. */}
         <div className="absolute inset-0 flex flex-col items-center pointer-events-none pt-[3vh] md:pt-0 justify-start md:justify-center md:pb-[10vh]">
           <Orb state={state} level={level} />
-          <p className="font-oswald font-bold uppercase text-3xl md:text-4xl tracking-[0.005em] text-brown whitespace-nowrap mt-4 md:mt-10 z-10">
+          <p className="font-oswald font-bold text-3xl md:text-4xl tracking-[0.005em] text-brown whitespace-nowrap mt-4 md:mt-10 z-10">
             {statusLabel}
           </p>
         </div>
 
         {recallHints.length > 0 && (
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 text-center text-xs uppercase tracking-[0.2em] z-10 pointer-events-none">
-            <p className="text-brown">Remembering...</p>
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 text-center text-sm z-10 pointer-events-none">
+            <p className="text-brown">Remembering…</p>
           </div>
         )}
 
@@ -320,13 +320,13 @@ export default function Talk() {
         <div className="flex-shrink-0 px-6 pt-2 pb-6 md:px-10 max-w-2xl mx-auto w-full space-y-2 text-sm opacity-70 hover:opacity-100 transition-opacity max-h-[28vh] overflow-y-auto">
           {lastTranscript && (
             <p className="text-mist">
-              <span className="text-brown/60 uppercase tracking-[0.2em] text-xs mr-3">You</span>
+              <span className="text-brown/60 text-xs font-medium mr-3">You</span>
               {lastTranscript}
             </p>
           )}
           {lastReply && (
             <p className="text-brown">
-              <span className="text-brown uppercase tracking-[0.2em] text-xs mr-3">Yap</span>
+              <span className="text-brown text-xs font-medium mr-3">Yap</span>
               {lastReply}
             </p>
           )}

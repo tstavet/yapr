@@ -61,8 +61,8 @@ export default function SetPassword({ userId, onDone }) {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="font-oswald font-bold uppercase text-5xl md:text-6xl tracking-[0.005em] mb-4 text-brown">
-            Set a Password
+          <h1 className="font-oswald font-bold text-5xl md:text-6xl tracking-[0.005em] mb-4 text-brown">
+            Set a password
           </h1>
           <p className="font-dmsans text-mist text-sm">
             So you can log back in without waiting for an email.
@@ -78,7 +78,7 @@ export default function SetPassword({ userId, onDone }) {
               required
               autoFocus
               autoComplete="new-password"
-              placeholder="New Password"
+              placeholder="New password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
@@ -92,7 +92,7 @@ export default function SetPassword({ userId, onDone }) {
               type="password"
               required
               autoComplete="new-password"
-              placeholder="Confirm Password"
+              placeholder="Confirm password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               className="w-full bg-transparent border-b border-mist/40 focus:border-brown pb-3 pt-2 text-lg text-brown placeholder:text-mist/60 focus:outline-none transition-colors"
@@ -104,7 +104,7 @@ export default function SetPassword({ userId, onDone }) {
             disabled={status === 'working'}
             className="w-full py-4 bg-brown text-cream font-medium tracking-wide hover:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {status === 'working' ? 'Saving…' : 'Save Password'}
+            {status === 'working' ? 'Saving…' : 'Save password'}
           </button>
 
           {status === 'error' && (
@@ -117,7 +117,7 @@ export default function SetPassword({ userId, onDone }) {
               onClick={handleSkip}
               className="text-mist hover:text-brown transition-colors text-sm underline underline-offset-4 decoration-dotted"
             >
-              Skip for Now
+              Skip for now
             </button>
           </div>
         </form>
