@@ -292,7 +292,16 @@ export default function Talk() {
         className="flex-1 min-h-0 relative w-full px-6 focus:outline-none text-left"
         aria-label={statusLabel}
       >
-        <Orb state={state} level={level} />
+        {/* Yap + Tap-to-Talk stack as a single flex column so the gap between
+            them stays fixed regardless of viewport-unit quirks. The whole
+            group is anchored near the top on mobile and centered (slightly
+            biased upward) on desktop. */}
+        <div className="absolute inset-0 flex flex-col items-center pointer-events-none pt-[3vh] md:pt-0 justify-start md:justify-center md:pb-[10vh]">
+          <Orb state={state} level={level} />
+          <p className="display text-3xl md:text-4xl italic text-brown whitespace-nowrap mt-4 md:mt-10 z-10">
+            {statusLabel}
+          </p>
+        </div>
 
         {recallHints.length > 0 && (
           <div className="absolute top-6 left-1/2 -translate-x-1/2 text-center text-xs uppercase tracking-[0.2em] z-10 pointer-events-none">
@@ -300,12 +309,8 @@ export default function Talk() {
           </div>
         )}
 
-        <p className="absolute bottom-[26vh] md:bottom-12 left-1/2 -translate-x-1/2 display text-3xl md:text-4xl italic text-brown whitespace-nowrap z-10 pointer-events-none">
-          {statusLabel}
-        </p>
-
         {error && (
-          <p className="absolute bottom-[34vh] md:bottom-28 left-1/2 -translate-x-1/2 text-brown text-sm max-w-md text-center px-6 z-10 pointer-events-none">
+          <p className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 text-brown text-sm max-w-md text-center px-6 z-10 pointer-events-none">
             {error}
           </p>
         )}
