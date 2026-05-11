@@ -12,7 +12,7 @@ export default {
       },
       colors: {
         ink: '#3d2817',
-        cream: '#f8f5f2',
+        cream: '#F1EADB',
         brown: '#6b4423',
         moss: '#4a5d3a',
         mist: '#8a8580',

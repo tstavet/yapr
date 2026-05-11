@@ -16,10 +16,9 @@ html {
 }
 
 body {
-  background: #f8f5f2;
+  background: #F1EADB;
   color: #6b4423;
-  font-family: 'Geist', system-ui, sans-serif;
-  font-feature-settings: 'ss01', 'cv11';
+  font-family: 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overscroll-behavior: none;

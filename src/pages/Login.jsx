@@ -66,17 +66,17 @@ export default function Login() {
     <main className="relative z-10 min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="mb-12 text-center">
-          <h1 className="display text-7xl md:text-8xl tracking-tight mb-3 text-brown">
-            Yapr<span className="text-brown">.</span>
+          <h1 className="font-oswald font-bold uppercase text-7xl md:text-8xl tracking-[0.005em] mb-3 text-brown">
+            Yapr
           </h1>
-          <p className="text-mist text-sm uppercase tracking-[0.3em]">
+          <p className="font-dmsans font-medium text-mist text-sm uppercase tracking-[0.3em]">
             The AI Buddy You Yap With
           </p>
         </div>
 
         {status === 'sent' ? (
           <div className="text-center space-y-4">
-            <p className="display text-2xl italic text-brown">Check Your Email.</p>
+            <p className="font-oswald font-bold uppercase text-2xl tracking-[0.005em] text-brown">Check Your Email</p>
             <p className="text-mist text-sm">
               We sent a link to <span className="text-brown">{email}</span>
             </p>
