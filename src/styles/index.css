@@ -11,6 +11,10 @@ html, body, #root {
   margin: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: #f8f5f2;
   color: #6b4423;
