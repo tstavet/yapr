@@ -28,13 +28,13 @@ export default function Orb() {
 
   return (
     <div
-      className="absolute inset-0 flex items-center justify-center pointer-events-none pb-[18vh]"
+      className="absolute inset-0 flex items-start md:items-center justify-center pointer-events-none pt-[4vh] md:pt-0 md:pb-[18vh]"
       aria-hidden="true"
     >
       <div
         className="aspect-square"
         style={{
-          width: 'clamp(260px, 62vmin, 520px)',
+          width: 'clamp(280px, 68vmin, 520px)',
           WebkitMaskImage: FEATHER_MASK,
           maskImage: FEATHER_MASK
         }}
