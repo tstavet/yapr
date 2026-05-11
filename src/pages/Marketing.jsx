@@ -67,7 +67,8 @@ export default function Marketing({ session }) {
       `}</style>
 
       <div className="marketing-root">
-      {/* Radial atmosphere wash behind everything */}
+      {/* Tonal warm highlight behind the hero — a brighter wash of the same tan,
+          not a new color. Helps the wordmark feel like it's catching light. */}
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-0"
@@ -84,15 +85,15 @@ export default function Marketing({ session }) {
           aria-label="Open menu"
           className="w-12 h-12 min-[761px]:w-14 min-[761px]:h-14 rounded-2xl border-[1.5px] border-marketing-brown/35 bg-white/40 backdrop-blur-md flex flex-col items-center justify-center gap-[5px] cursor-pointer transition-all duration-[250ms] hover:bg-white/70 hover:scale-[1.03]"
         >
-          <span className="block w-[18px] h-[1.75px] bg-marketing-brown-deep rounded-sm" />
-          <span className="block w-[18px] h-[1.75px] bg-marketing-brown-deep rounded-sm" />
+          <span className="block w-[18px] h-[1.75px] bg-marketing-brown rounded-sm" />
+          <span className="block w-[18px] h-[1.75px] bg-marketing-brown rounded-sm" />
         </button>
 
         <nav className="flex items-center gap-3">
           <a
             href="#"
             aria-label="Hear Yap talk"
-            className="hidden min-[761px]:inline-flex items-center gap-3 px-[26px] py-4 rounded-2xl font-dmsans font-semibold text-[15px] -tracking-[0.01em] text-marketing-brown-deep bg-white/40 border-[1.5px] border-marketing-brown/35 backdrop-blur-md whitespace-nowrap transition-all duration-[250ms] hover:bg-white/70 hover:-translate-y-px no-underline"
+            className="hidden min-[761px]:inline-flex items-center gap-3 px-[26px] py-4 rounded-2xl font-dmsans font-semibold text-[15px] -tracking-[0.01em] text-marketing-brown bg-white/40 border-[1.5px] border-marketing-brown/35 backdrop-blur-md whitespace-nowrap transition-all duration-[250ms] hover:bg-white/70 hover:-translate-y-px no-underline"
           >
             <svg
               width="16"
@@ -111,7 +112,7 @@ export default function Marketing({ session }) {
           <Link
             to="/login"
             aria-label="Start yapping"
-            className="inline-flex items-center gap-3 px-[18px] py-[14px] min-[761px]:px-[26px] min-[761px]:py-4 rounded-2xl font-dmsans font-semibold text-[14px] min-[761px]:text-[15px] -tracking-[0.01em] bg-marketing-card text-marketing-brown-deep whitespace-nowrap shadow-[0_1px_2px_rgba(74,47,24,0.08)] transition-all duration-[250ms] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(74,47,24,0.12)] no-underline"
+            className="inline-flex items-center gap-3 px-[18px] py-[14px] min-[761px]:px-[26px] min-[761px]:py-4 rounded-2xl font-dmsans font-semibold text-[14px] min-[761px]:text-[15px] -tracking-[0.01em] bg-marketing-bg text-marketing-brown border-[1.5px] border-marketing-brown/35 whitespace-nowrap shadow-[0_1px_2px_rgba(74,47,24,0.08)] transition-all duration-[250ms] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(74,47,24,0.12)] no-underline"
           >
             <span className="w-[26px] h-[26px] flex items-center justify-center">
               <svg
@@ -129,10 +130,10 @@ export default function Marketing({ session }) {
               </svg>
             </span>
             <span className="flex flex-col leading-[1.1] text-left">
-              <span className="hidden min-[761px]:inline text-[10px] font-medium text-marketing-muted">
+              <span className="hidden min-[761px]:inline text-[10px] font-medium text-marketing-ink">
                 Start
               </span>
-              <span className="text-[14px] min-[761px]:text-[16px] font-bold text-marketing-brown-deep">
+              <span className="text-[14px] min-[761px]:text-[16px] font-bold text-marketing-brown">
                 yapping
               </span>
             </span>
@@ -143,7 +144,7 @@ export default function Marketing({ session }) {
       {/* ============ HERO ============ */}
       <main className="relative z-[1] min-h-screen flex flex-col items-center justify-center px-4 pt-[110px] pb-[100px] min-[761px]:px-6 min-[761px]:pt-[140px] min-[761px]:pb-20">
         <div className="flex items-center justify-center gap-2 min-[761px]:gap-[clamp(12px,2vw,36px)] relative animate-rise">
-          <h1 className="mk-hero-wordmark font-oswald font-bold text-marketing-brown-deep leading-[0.85] tracking-[0.005em] select-none">
+          <h1 className="mk-hero-wordmark font-oswald font-bold text-marketing-brown leading-[0.85] tracking-[0.005em] select-none">
             Yapr
           </h1>
           <div
@@ -171,7 +172,7 @@ export default function Marketing({ session }) {
           Your AI buddy to yap with.
         </p>
 
-        <span className="absolute bottom-8 left-1/2 -translate-x-1/2 font-dmsans text-[11px] tracking-[0.04em] text-marketing-muted opacity-70 animate-bob">
+        <span className="absolute bottom-8 left-1/2 -translate-x-1/2 font-dmsans text-[11px] tracking-[0.04em] text-marketing-ink opacity-70 animate-bob">
           Scroll
         </span>
       </main>
@@ -184,7 +185,7 @@ export default function Marketing({ session }) {
         <div className="grid grid-cols-1 min-[901px]:grid-cols-[1.3fr_1fr] gap-[clamp(40px,6vw,96px)] items-center max-w-[1400px] mx-auto">
           <div className="flex flex-col gap-8 items-center text-center min-[901px]:items-start min-[901px]:text-left">
             <h2
-              className="font-oswald font-bold text-marketing-brown-deep leading-[0.9] tracking-[0.005em]"
+              className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
             >
               Yap is here
@@ -212,10 +213,10 @@ export default function Marketing({ session }) {
       {/* ============ HOW IT WORKS ============ */}
       <section
         id="how"
-        className="marketing-reveal relative z-[1] overflow-hidden bg-marketing-bg-alt text-center px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
+        className="marketing-reveal relative z-[1] overflow-hidden bg-marketing-bg text-center px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
       >
         <h2
-          className="font-oswald font-bold text-marketing-brown-deep leading-[0.9] tracking-[0.005em] text-center mb-[clamp(40px,6vw,80px)]"
+          className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em] text-center mb-[clamp(40px,6vw,80px)]"
           style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
         >
           How it works.
@@ -223,7 +224,7 @@ export default function Marketing({ session }) {
         <div className="grid grid-cols-1 min-[901px]:grid-cols-3 gap-14 min-[901px]:gap-[clamp(24px,4vw,64px)] max-w-[1400px] mx-auto items-end">
           <div className="flex flex-col items-center gap-5">
             <div
-              className="font-oswald font-bold text-marketing-brown-soft tracking-[0.1em]"
+              className="font-oswald font-bold text-marketing-ink tracking-[0.1em]"
               style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.4rem)' }}
             >
               01
@@ -237,7 +238,7 @@ export default function Marketing({ session }) {
               }}
             />
             <div
-              className="font-oswald font-bold text-marketing-brown-deep leading-[0.9] tracking-[0.005em]"
+              className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
               Press
@@ -246,7 +247,7 @@ export default function Marketing({ session }) {
 
           <div className="flex flex-col items-center gap-5">
             <div
-              className="font-oswald font-bold text-marketing-brown-soft tracking-[0.1em]"
+              className="font-oswald font-bold text-marketing-ink tracking-[0.1em]"
               style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.4rem)' }}
             >
               02
@@ -260,7 +261,7 @@ export default function Marketing({ session }) {
               }}
             />
             <div
-              className="font-oswald font-bold text-marketing-brown-deep leading-[0.9] tracking-[0.005em]"
+              className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
               Talk
@@ -269,7 +270,7 @@ export default function Marketing({ session }) {
 
           <div className="flex flex-col items-center gap-5">
             <div
-              className="font-oswald font-bold text-marketing-brown-soft tracking-[0.1em]"
+              className="font-oswald font-bold text-marketing-ink tracking-[0.1em]"
               style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.4rem)' }}
             >
               03
@@ -283,7 +284,7 @@ export default function Marketing({ session }) {
               }}
             />
             <div
-              className="font-oswald font-bold text-marketing-brown-deep leading-[0.9] tracking-[0.005em]"
+              className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
               Yap back
@@ -307,7 +308,7 @@ export default function Marketing({ session }) {
             }}
           />
           <h2
-            className="font-oswald font-bold text-marketing-brown-deep leading-[0.9] tracking-[0.005em] mb-[clamp(48px,6vw,80px)] max-w-none text-center min-[901px]:max-w-[14ch] min-[901px]:text-left"
+            className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em] mb-[clamp(48px,6vw,80px)] max-w-none text-center min-[901px]:max-w-[14ch] min-[901px]:text-left"
             style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
           >
             Yap remembers.
@@ -322,7 +323,7 @@ export default function Marketing({ session }) {
             ].map((line) => (
               <li
                 key={line}
-                className="font-oswald font-bold leading-none text-marketing-brown-deep tracking-[0.005em] border-b-2 border-marketing-brown/[0.18] pb-[clamp(16px,2vw,28px)]"
+                className="font-oswald font-bold leading-none text-marketing-brown tracking-[0.005em] border-b-2 border-marketing-brown/[0.18] pb-[clamp(16px,2vw,28px)]"
                 style={{ fontSize: 'clamp(2rem, 5.5vw, 5rem)' }}
               >
                 {line}
@@ -335,7 +336,7 @@ export default function Marketing({ session }) {
       {/* ============ PRICING ============ */}
       <section
         id="start"
-        className="marketing-reveal relative z-[1] overflow-hidden bg-marketing-bg-alt text-center flex flex-col items-center gap-[clamp(20px,3vw,40px)] px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
+        className="marketing-reveal relative z-[1] overflow-hidden bg-marketing-bg text-center flex flex-col items-center gap-[clamp(20px,3vw,40px)] px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
       >
         <div
           aria-hidden="true"
@@ -346,20 +347,20 @@ export default function Marketing({ session }) {
           }}
         />
         <h2
-          className="font-oswald font-bold text-marketing-brown-deep leading-[0.9] tracking-[0.005em]"
+          className="font-oswald font-bold text-marketing-brown leading-[0.9] tracking-[0.005em]"
           style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
         >
           $99 a month.
         </h2>
         <p
-          className="font-dmsans font-medium text-marketing-muted tracking-[0.02em]"
+          className="font-dmsans font-medium text-marketing-ink tracking-[0.02em]"
           style={{ fontSize: 'clamp(1.1rem, 1.8vw, 1.5rem)' }}
         >
           Unlimited yapping. Cancel anytime.
         </p>
         <Link
           to="/login"
-          className="mt-4 inline-block px-14 py-[22px] bg-marketing-brown-deep text-white no-underline rounded-[18px] font-dmsans font-bold tracking-[0.01em] transition-all duration-[250ms] shadow-[0_6px_24px_rgba(74,47,24,0.18)] hover:bg-marketing-brown hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(74,47,24,0.25)]"
+          className="mt-4 inline-block px-14 py-[22px] bg-marketing-brown text-marketing-bg no-underline rounded-[18px] font-dmsans font-bold tracking-[0.01em] transition-all duration-[250ms] shadow-[0_6px_24px_rgba(74,47,24,0.18)] hover:bg-marketing-ink hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(74,47,24,0.25)]"
           style={{ fontSize: 'clamp(1.1rem, 1.6vw, 1.4rem)' }}
         >
           Start yapping
@@ -368,20 +369,20 @@ export default function Marketing({ session }) {
 
       {/* ============ FOOTER ============ */}
       <footer className="relative z-[1] text-center px-6 pt-[60px] pb-20">
-        <div className="font-oswald font-bold text-[18px] text-marketing-brown-deep tracking-[0.005em] mb-3">
+        <div className="font-oswald font-bold text-[18px] text-marketing-brown tracking-[0.005em] mb-3">
           Yapr
         </div>
-        <div className="font-playfair italic text-[13px] text-marketing-muted">
+        <div className="font-playfair italic text-[13px] text-marketing-ink">
           For Victoria, with love.
         </div>
-        <div className="mt-5 flex justify-center gap-6 text-[12px] text-marketing-muted">
-          <a href="#" className="text-marketing-muted no-underline hover:text-marketing-brown-deep">
+        <div className="mt-5 flex justify-center gap-6 text-[12px] text-marketing-ink">
+          <a href="#" className="text-marketing-ink no-underline hover:text-marketing-brown">
             Privacy
           </a>
-          <a href="#" className="text-marketing-muted no-underline hover:text-marketing-brown-deep">
+          <a href="#" className="text-marketing-ink no-underline hover:text-marketing-brown">
             Terms
           </a>
-          <a href="#" className="text-marketing-muted no-underline hover:text-marketing-brown-deep">
+          <a href="#" className="text-marketing-ink no-underline hover:text-marketing-brown">
             Contact
           </a>
         </div>
