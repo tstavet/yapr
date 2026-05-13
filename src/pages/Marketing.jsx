@@ -25,7 +25,7 @@ export default function Marketing({ session }) {
         .mk-hero-wordmark { font-size: clamp(8rem, 24vw, 26rem); }
         .mk-hero-mascot   { height: clamp(12rem, 36vw, 39rem); }
         @media (max-width: 420px) {
-          .mk-hero-wordmark { font-size: clamp(4rem, 22vw, 9rem); }
+          .mk-hero-wordmark { font-size: clamp(3rem, 17vw, 9rem); }
           .mk-hero-mascot   { height: clamp(4.5rem, 22vw, 11rem); }
         }
       `}</style>
@@ -106,7 +106,7 @@ export default function Marketing({ session }) {
       </header>
 
       {/* ============ HERO ============ */}
-      <main className="relative z-[1] min-h-screen flex flex-col items-start justify-start pt-[80px] pb-[60px] px-[clamp(24px,6vw,96px)] min-[761px]:pt-[140px] min-[761px]:pb-20 min-[761px]:justify-center">
+      <main className="relative z-[1] min-h-screen flex flex-col items-start justify-start pt-[95px] pb-[60px] px-[clamp(24px,6vw,96px)] min-[761px]:pt-[140px] min-[761px]:pb-20 min-[761px]:justify-center">
         <div className="flex flex-row items-center gap-[clamp(12px,3vw,72px)] relative">
           <h1 className="mk-hero-wordmark font-oswald font-bold uppercase text-marketing-brown leading-[0.85] tracking-[0.005em] select-none">
             Yapr
