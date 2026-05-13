@@ -107,7 +107,7 @@ export default function Marketing({ session }) {
       {/* ============ HERO ============ */}
       {/* Mobile: centered stack (pinecone hero on top, YAPR below, subtext below).
           Desktop: left-aligned row (YAPR + pinecone side-by-side, subtext below). */}
-      <main className="relative z-[1] min-h-screen flex flex-col items-center text-center justify-center px-[clamp(24px,6vw,96px)] pt-[100px] pb-[60px] min-[761px]:items-start min-[761px]:text-left min-[761px]:pt-[140px] min-[761px]:pb-20">
+      <main className="relative z-[1] min-h-[70svh] flex flex-col items-center text-center justify-center px-[clamp(24px,6vw,96px)] pt-[80px] pb-[40px] min-[761px]:min-h-screen min-[761px]:items-start min-[761px]:text-left min-[761px]:pt-[140px] min-[761px]:pb-20">
         <div className="flex flex-col items-center gap-3 min-[761px]:flex-row min-[761px]:items-center min-[761px]:gap-[clamp(20px,4vw,72px)] relative">
           <div
             className="mk-hero-mascot relative flex-shrink-0 aspect-square order-1 min-[761px]:order-2"
@@ -144,22 +144,19 @@ export default function Marketing({ session }) {
               className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
             >
-              Yapr is ready to chat
-              <br />
-              when you are.
+              Ready to chat when you are
             </h2>
             <p
               className="font-dmsans font-medium leading-[1.45] text-marketing-ink max-w-[36ch]"
               style={{ fontSize: 'clamp(1.25rem, 2vw, 1.8rem)' }}
             >
-              Vent about your day, gossip about the groupchat, or talk through a hard event. Just tap to start chatting. Yap remembers, so you can pick up where you left off. 
-              where you left off.
+              Vent about your day, gossip about the groupchat, or talk through a hard event.
             </p>
           </div>
           <div
             role="img"
             aria-label="Yap holding a coffee mug, sitting cross-legged"
-            className="bg-contain bg-no-repeat bg-center w-full aspect-[555/767] mx-auto max-w-[280px] min-[901px]:max-w-[420px] min-[901px]:mx-0 min-[901px]:justify-self-end [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
+            className="bg-contain bg-no-repeat bg-center w-full aspect-[555/767] mx-auto max-w-[340px] min-[901px]:max-w-[560px] min-[901px]:mx-0 min-[901px]:justify-self-end [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
             style={{ backgroundImage: "url('/yap-coffee.png')" }}
           />
         </div>
