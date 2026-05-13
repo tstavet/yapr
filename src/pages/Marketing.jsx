@@ -107,7 +107,7 @@ export default function Marketing({ session }) {
       {/* ============ HERO ============ */}
       {/* Mobile: centered stack (pinecone hero on top, YAPR below, subtext below).
           Desktop: left-aligned row (YAPR + pinecone side-by-side, subtext below). */}
-      <main className="relative z-[1] min-h-screen flex flex-col items-center text-center justify-center px-[clamp(24px,6vw,96px)] pt-[100px] pb-[60px] min-[761px]:items-start min-[761px]:text-left min-[761px]:pt-[140px] min-[761px]:pb-20">
+      <main className="relative z-[1] min-h-[70svh] flex flex-col items-center text-center justify-center px-[clamp(24px,6vw,96px)] pt-[80px] pb-[40px] min-[761px]:min-h-screen min-[761px]:items-start min-[761px]:text-left min-[761px]:pt-[140px] min-[761px]:pb-20">
         <div className="flex flex-col items-center gap-3 min-[761px]:flex-row min-[761px]:items-center min-[761px]:gap-[clamp(20px,4vw,72px)] relative">
           <div
             className="mk-hero-mascot relative flex-shrink-0 aspect-square order-1 min-[761px]:order-2"
