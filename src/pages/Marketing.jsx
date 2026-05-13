@@ -247,7 +247,7 @@ export default function Marketing({ session }) {
           className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
           style={{ fontSize: 'clamp(2.5rem, 11vw, 11rem)' }}
         >
-          $99 a month.
+          Get started for free
         </h2>
         <p
           className="font-dmsans font-medium text-marketing-ink tracking-[0.02em]"
