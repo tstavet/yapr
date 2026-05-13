@@ -146,7 +146,7 @@ export default function Marketing({ session }) {
 
       {/* ============ HERO ============ */}
       <main className="relative z-[1] min-h-screen flex flex-col items-start justify-center pt-[110px] pb-[100px] px-[clamp(24px,6vw,96px)] min-[761px]:pt-[140px] min-[761px]:pb-20">
-        <div className="flex items-end gap-[clamp(20px,4vw,72px)] relative animate-rise">
+        <div className="flex items-center gap-[clamp(20px,4vw,72px)] relative animate-rise">
           <h1 className="mk-hero-wordmark font-oswald font-bold uppercase text-marketing-brown leading-[0.85] tracking-[0.005em] select-none">
             Yapr
           </h1>
