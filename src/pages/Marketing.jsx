@@ -158,7 +158,7 @@ export default function Marketing({ session }) {
             </div>
             <div
               role="img"
-              aria-label="Yap the Pinecone"
+              aria-label="Yapr the Pinecone"
               className="bg-contain bg-no-repeat bg-center animate-float origin-[50%_85%] aspect-[544/686] [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
               style={{ backgroundImage: "url('/yap-walking.png')" }}
             />
@@ -169,7 +169,7 @@ export default function Marketing({ session }) {
           className="mt-[clamp(28px,4.5vw,64px)] font-dmsans font-bold text-marketing-ink -tracking-[0.015em] text-center animate-rise-slow [animation-delay:0.15s]"
           style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.4rem)' }}
         >
-          Your AI buddy to yap with.
+          Your buddy to yap with.
         </p>
 
         <span className="absolute bottom-8 left-1/2 -translate-x-1/2 font-dmsans text-[11px] tracking-[0.04em] text-marketing-ink opacity-70 animate-bob">
@@ -188,16 +188,15 @@ export default function Marketing({ session }) {
               className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
             >
-              Yap is here
+              Yapr is ready to chat
               <br />
-              whenever.
+              when you are.
             </h2>
             <p
               className="font-dmsans font-medium leading-[1.45] text-marketing-ink max-w-[36ch]"
               style={{ fontSize: 'clamp(1.25rem, 2vw, 1.8rem)' }}
             >
-              Perfect for venting, gossiping, and casual yapping. Just press to
-              start chatting, and Yap remembers what matters so you can pick up
+              Vent about your day, gossip about the groupchat, or talk through a hard event. Just tap to start chatting. Yap remembers, so you can pick up where you left off. 
               where you left off.
             </p>
           </div>
@@ -241,7 +240,7 @@ export default function Marketing({ session }) {
               className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
-              Press
+              Tap to start 
             </div>
           </div>
 
@@ -264,7 +263,7 @@ export default function Marketing({ session }) {
               className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
-              Talk
+              Chat
             </div>
           </div>
 
@@ -287,7 +286,7 @@ export default function Marketing({ session }) {
               className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
             >
-              Yap back
+              Yapr chats back
             </div>
           </div>
         </div>
@@ -311,14 +310,14 @@ export default function Marketing({ session }) {
             className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em] mb-[clamp(48px,6vw,80px)] max-w-none text-center min-[901px]:max-w-[14ch] min-[901px]:text-left"
             style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
           >
-            Yap remembers.
+            Yapr remembers.
           </h2>
           <ul className="list-none flex flex-col gap-[clamp(20px,2.4vw,36px)]">
             {[
               "Your dog's name.",
               "The meeting Thursday.",
               "How you take your coffee.",
-              "Why you're not speaking to Karen.",
+              "Why you're not speaking to your friend.",
               "That show you keep meaning to start."
             ].map((line) => (
               <li
