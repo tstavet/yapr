@@ -163,85 +163,42 @@ export default function Marketing({ session }) {
       </section>
 
       {/* ============ HOW IT WORKS ============ */}
+      {/* All three PNGs are 1254x1254 squares, so each step uses aspect-square
+          with a shared width clamp. That keeps every pinecone box the same
+          size, which auto-aligns the labels on a shared baseline below. */}
       <section
         id="how"
-        className="relative z-[1] overflow-hidden bg-marketing-bg text-center px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
+        className="relative z-[1] overflow-hidden bg-marketing-bg text-center px-[clamp(24px,6vw,96px)] py-[clamp(60px,9vw,140px)]"
       >
         <h2
-          className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em] text-center mb-[clamp(40px,6vw,80px)]"
+          className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em] text-center mb-[clamp(32px,5vw,72px)]"
           style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
         >
           How it works.
         </h2>
-        <div className="grid grid-cols-1 min-[901px]:grid-cols-3 gap-14 min-[901px]:gap-[clamp(24px,4vw,64px)] max-w-[1400px] mx-auto items-end">
-          <div className="flex flex-col items-center gap-5">
-            <div
-              className="font-oswald font-bold uppercase text-marketing-ink tracking-[0.1em]"
-              style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.4rem)' }}
-            >
-              01
+        <div className="grid grid-cols-1 min-[901px]:grid-cols-3 gap-10 min-[901px]:gap-[clamp(24px,4vw,64px)] max-w-[1400px] mx-auto">
+          {[
+            { src: '/yap-bounce.png', label: 'Tap to start' },
+            { src: '/yap-kick.png', label: 'Chat' },
+            { src: '/yap-run.png', label: 'Yapr chats back' }
+          ].map((step) => (
+            <div key={step.label} className="flex flex-col items-center">
+              <div
+                aria-hidden="true"
+                className="aspect-square bg-contain bg-bottom bg-no-repeat [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
+                style={{
+                  backgroundImage: `url('${step.src}')`,
+                  width: 'clamp(260px, 30vw, 420px)'
+                }}
+              />
+              <div
+                className="mt-6 font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
+                style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
+              >
+                {step.label}
+              </div>
             </div>
-            <div
-              aria-hidden="true"
-              className="bg-contain bg-no-repeat bg-center aspect-[500/923] [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
-              style={{
-                backgroundImage: "url('/yap-bounce.png')",
-                width: 'clamp(140px, 18vw, 220px)'
-              }}
-            />
-            <div
-              className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
-              style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
-            >
-              Tap to start 
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center gap-5">
-            <div
-              className="font-oswald font-bold uppercase text-marketing-ink tracking-[0.1em]"
-              style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.4rem)' }}
-            >
-              02
-            </div>
-            <div
-              aria-hidden="true"
-              className="bg-contain bg-no-repeat bg-center aspect-[537/845] [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
-              style={{
-                backgroundImage: "url('/yap-kick.png')",
-                width: 'clamp(140px, 18vw, 220px)'
-              }}
-            />
-            <div
-              className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
-              style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
-            >
-              Chat
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center gap-5">
-            <div
-              className="font-oswald font-bold uppercase text-marketing-ink tracking-[0.1em]"
-              style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.4rem)' }}
-            >
-              03
-            </div>
-            <div
-              aria-hidden="true"
-              className="bg-contain bg-no-repeat bg-center aspect-[674/852] [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
-              style={{
-                backgroundImage: "url('/yap-run.png')",
-                width: 'clamp(140px, 18vw, 220px)'
-              }}
-            />
-            <div
-              className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
-              style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
-            >
-              Yapr chats back
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
