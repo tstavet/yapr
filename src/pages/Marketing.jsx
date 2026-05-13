@@ -127,7 +127,7 @@ export default function Marketing({ session }) {
 
         <p
           className="mt-[clamp(20px,3vw,28px)] font-dmsans font-bold text-marketing-ink -tracking-[0.015em] max-w-[34ch] min-[761px]:max-w-[52ch]"
-          style={{ fontSize: 'clamp(1.05rem, 2.6vw, 2.4rem)', textWrap: 'pretty' }}
+          style={{ fontSize: 'clamp(1.1rem, 1.6vw, 1.5rem)', textWrap: 'pretty' }}
         >
           Your buddy to yap with. Tap to start and Yapr listens, chats back, and remembers what matters.
         </p>
@@ -142,13 +142,13 @@ export default function Marketing({ session }) {
           <div className="flex flex-col gap-8 items-center text-center min-[901px]:items-start min-[901px]:text-left">
             <h2
               className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
-              style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
+              style={{ fontSize: 'clamp(2.5rem, 11vw, 11rem)' }}
             >
               Ready to chat when you are
             </h2>
             <p
               className="font-dmsans font-medium leading-[1.45] text-marketing-ink max-w-[36ch]"
-              style={{ fontSize: 'clamp(1.25rem, 2vw, 1.8rem)' }}
+              style={{ fontSize: 'clamp(1.1rem, 1.6vw, 1.5rem)' }}
             >
               Vent about your day, gossip about the groupchat, or talk through a hard event.
             </p>
@@ -172,7 +172,7 @@ export default function Marketing({ session }) {
       >
         <h2
           className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em] text-center mb-[clamp(32px,5vw,72px)]"
-          style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
+          style={{ fontSize: 'clamp(2.5rem, 11vw, 11rem)' }}
         >
           How it works.
         </h2>
@@ -210,15 +210,15 @@ export default function Marketing({ session }) {
         <div className="max-w-[1400px] mx-auto relative">
           <div
             aria-hidden="true"
-            className="bg-contain bg-no-repeat bg-center aspect-[930/725] mx-auto mb-8 block min-[901px]:absolute min-[901px]:-top-10 min-[901px]:-right-5 min-[901px]:mx-0 min-[901px]:mb-0 [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
+            className="bg-contain bg-no-repeat bg-center aspect-square mx-auto mb-8 block min-[901px]:absolute min-[901px]:-top-4 min-[901px]:right-0 min-[901px]:mx-0 min-[901px]:mb-0 [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
             style={{
               backgroundImage: "url('/yap-stretch.png')",
-              width: 'clamp(180px, 24vw, 320px)'
+              width: 'clamp(280px, 30vw, 500px)'
             }}
           />
           <h2
             className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em] mb-[clamp(48px,6vw,80px)] max-w-none text-center min-[901px]:max-w-[14ch] min-[901px]:text-left"
-            style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
+            style={{ fontSize: 'clamp(2.5rem, 11vw, 11rem)' }}
           >
             Yapr remembers.
           </h2>
@@ -249,21 +249,21 @@ export default function Marketing({ session }) {
       >
         <div
           aria-hidden="true"
-          className="bg-contain bg-no-repeat bg-center aspect-[544/686] [transform:scaleX(-1)] mb-2 [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
+          className="bg-contain bg-no-repeat bg-center aspect-square [transform:scaleX(-1)] mb-2 [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
           style={{
             backgroundImage: "url('/yap-walking.png')",
-            width: 'clamp(160px, 22vw, 260px)'
+            width: 'clamp(280px, 30vw, 500px)'
           }}
         />
         <h2
           className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
-          style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
+          style={{ fontSize: 'clamp(2.5rem, 11vw, 11rem)' }}
         >
           $99 a month.
         </h2>
         <p
           className="font-dmsans font-medium text-marketing-ink tracking-[0.02em]"
-          style={{ fontSize: 'clamp(1.1rem, 1.8vw, 1.5rem)' }}
+          style={{ fontSize: 'clamp(1.1rem, 1.6vw, 1.5rem)' }}
         >
           Unlimited yapping. Cancel anytime.
         </p>
