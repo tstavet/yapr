@@ -159,7 +159,7 @@ export default function Marketing({ session }) {
           <div
             role="img"
             aria-label="Yap holding a coffee mug, sitting cross-legged"
-            className="bg-contain bg-no-repeat bg-center w-full aspect-[555/767] mx-auto max-w-[280px] min-[901px]:max-w-[420px] min-[901px]:mx-0 min-[901px]:justify-self-end [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
+            className="bg-contain bg-no-repeat bg-center w-full aspect-[555/767] mx-auto max-w-[340px] min-[901px]:max-w-[560px] min-[901px]:mx-0 min-[901px]:justify-self-end [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
             style={{ backgroundImage: "url('/yap-coffee.png')" }}
           />
         </div>
