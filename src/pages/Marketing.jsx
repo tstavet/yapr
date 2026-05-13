@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
 
 // Marketing landing page. Shown to logged-out visitors at `/`. If `session`
@@ -10,25 +10,6 @@ import { Link, Navigate } from 'react-router-dom';
 // (md=768, lg=1024), so this file uses arbitrary `min-[761px]:` and
 // `min-[901px]:` variants for layout switches.
 export default function Marketing({ session }) {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: '0px 0px -80px 0px' }
-    );
-
-    const els = document.querySelectorAll('.marketing-reveal');
-    els.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, []);
-
   if (session) {
     return <Navigate to="/chat" replace />;
   }
@@ -36,15 +17,6 @@ export default function Marketing({ session }) {
   return (
     <div className="relative min-h-screen bg-marketing-bg text-marketing-ink font-dmsans overflow-x-hidden antialiased">
       <style>{`
-        .marketing-reveal {
-          opacity: 0;
-          transform: translateY(40px);
-          transition:
-            opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
-            transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
-        }
-        .marketing-reveal.is-visible { opacity: 1; transform: translateY(0); }
-
         /* Hero wordmark + mascot need a real CSS clamp curve with a 420px
            breakpoint override — Tailwind can't express conditional clamps.
            Mascot is sized larger than the wordmark because yap.png has empty
@@ -54,18 +26,7 @@ export default function Marketing({ session }) {
         .mk-hero-mascot   { height: clamp(12rem, 36vw, 39rem); }
         @media (max-width: 420px) {
           .mk-hero-wordmark { font-size: clamp(5.5rem, 26vw, 9rem); }
-          .mk-hero-mascot   { height: clamp(8rem, 39vw, 13.5rem); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .marketing-root *,
-          .marketing-root *::before,
-          .marketing-root *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-          .marketing-reveal { opacity: 1; transform: none; }
+          .mk-hero-mascot   { height: clamp(8rem, 32vw, 11rem); }
         }
       `}</style>
 
@@ -145,8 +106,8 @@ export default function Marketing({ session }) {
       </header>
 
       {/* ============ HERO ============ */}
-      <main className="relative z-[1] min-h-screen flex flex-col items-start justify-center pt-[110px] pb-[100px] px-[clamp(24px,6vw,96px)] min-[761px]:pt-[140px] min-[761px]:pb-20">
-        <div className="flex items-center gap-[clamp(20px,4vw,72px)] relative animate-rise">
+      <main className="relative z-[1] min-h-screen flex flex-col items-start justify-start pt-[80px] pb-[60px] px-[clamp(24px,6vw,96px)] min-[761px]:pt-[140px] min-[761px]:pb-20 min-[761px]:justify-center">
+        <div className="flex flex-col-reverse items-start gap-4 min-[761px]:flex-row min-[761px]:items-center min-[761px]:gap-[clamp(20px,4vw,72px)] relative">
           <h1 className="mk-hero-wordmark font-oswald font-bold uppercase text-marketing-brown leading-[0.85] tracking-[0.005em] select-none">
             Yapr
           </h1>
@@ -154,36 +115,27 @@ export default function Marketing({ session }) {
             className="mk-hero-mascot relative flex-shrink-0 aspect-square"
             aria-hidden="true"
           >
-            <div className="absolute top-[18%] -left-4 min-[761px]:-left-[22px] flex flex-col gap-1 z-[2]">
-              <span className="w-[6px] h-[6px] rounded-full bg-marketing-brown opacity-0 animate-blip" />
-              <span className="w-[9px] h-[9px] rounded-full bg-marketing-brown opacity-0 animate-blip [animation-delay:0.3s]" />
-              <span className="w-[7px] h-[7px] rounded-full bg-marketing-brown opacity-0 animate-blip [animation-delay:0.6s]" />
-            </div>
             <div
               role="img"
               aria-label="Yapr the Pinecone"
-              className="w-full h-full bg-contain bg-no-repeat bg-center animate-float origin-[50%_85%] [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
+              className="w-full h-full bg-contain bg-no-repeat bg-center [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
               style={{ backgroundImage: "url('/yap.png')" }}
             />
           </div>
         </div>
 
         <p
-          className="mt-[clamp(16px,2vw,24px)] font-dmsans font-bold text-marketing-ink -tracking-[0.015em] text-left max-w-[52ch] animate-rise-slow [animation-delay:0.15s]"
+          className="mt-[clamp(16px,2vw,24px)] font-dmsans font-bold text-marketing-ink -tracking-[0.015em] text-left max-w-[52ch]"
           style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.4rem)', textWrap: 'pretty' }}
         >
           Your buddy to yap with. Tap to start and Yapr listens, chats back, and remembers what matters.
         </p>
-
-        <span className="absolute bottom-8 left-1/2 -translate-x-1/2 font-dmsans text-[11px] tracking-[0.04em] text-marketing-ink opacity-70 animate-bob">
-          Scroll
-        </span>
       </main>
 
       {/* ============ WHAT YAP IS FOR ============ */}
       <section
         id="about"
-        className="marketing-reveal relative z-[1] overflow-hidden px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
+        className="relative z-[1] overflow-hidden px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
       >
         <div className="grid grid-cols-1 min-[901px]:grid-cols-[1.3fr_1fr] gap-[clamp(40px,6vw,96px)] items-center max-w-[1400px] mx-auto">
           <div className="flex flex-col gap-8 items-center text-center min-[901px]:items-start min-[901px]:text-left">
@@ -215,7 +167,7 @@ export default function Marketing({ session }) {
       {/* ============ HOW IT WORKS ============ */}
       <section
         id="how"
-        className="marketing-reveal relative z-[1] overflow-hidden bg-marketing-bg text-center px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
+        className="relative z-[1] overflow-hidden bg-marketing-bg text-center px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
       >
         <h2
           className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em] text-center mb-[clamp(40px,6vw,80px)]"
@@ -233,7 +185,7 @@ export default function Marketing({ session }) {
             </div>
             <div
               aria-hidden="true"
-              className="bg-contain bg-no-repeat bg-center animate-hop aspect-[500/923] [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
+              className="bg-contain bg-no-repeat bg-center aspect-[500/923] [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
               style={{
                 backgroundImage: "url('/yap-bounce.png')",
                 width: 'clamp(140px, 18vw, 220px)'
@@ -298,7 +250,7 @@ export default function Marketing({ session }) {
       {/* ============ YAP REMEMBERS ============ */}
       <section
         id="memory"
-        className="marketing-reveal relative z-[1] overflow-hidden px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
+        className="relative z-[1] overflow-hidden px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
       >
         <div className="max-w-[1400px] mx-auto relative">
           <div
@@ -338,7 +290,7 @@ export default function Marketing({ session }) {
       {/* ============ PRICING ============ */}
       <section
         id="start"
-        className="marketing-reveal relative z-[1] overflow-hidden bg-marketing-bg text-center flex flex-col items-center gap-[clamp(20px,3vw,40px)] px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
+        className="relative z-[1] overflow-hidden bg-marketing-bg text-center flex flex-col items-center gap-[clamp(20px,3vw,40px)] px-[clamp(24px,6vw,96px)] py-[clamp(80px,12vw,180px)]"
       >
         <div
           aria-hidden="true"
