@@ -46,12 +46,14 @@ export default function Marketing({ session }) {
         .marketing-reveal.is-visible { opacity: 1; transform: translateY(0); }
 
         /* Hero wordmark + mascot need a real CSS clamp curve with a 420px
-           breakpoint override — Tailwind can't express conditional clamps. */
+           breakpoint override — Tailwind can't express conditional clamps.
+           Mascot height tracks the wordmark font-size so the image visually
+           matches the text. yap.png is 1:1, hence aspect-square on the wrapper. */
         .mk-hero-wordmark { font-size: clamp(8rem, 24vw, 26rem); }
-        .mk-hero-mascot   { width: clamp(120px, 18vw, 260px); }
+        .mk-hero-mascot   { height: clamp(8rem, 24vw, 26rem); }
         @media (max-width: 420px) {
           .mk-hero-wordmark { font-size: clamp(5.5rem, 26vw, 9rem); }
-          .mk-hero-mascot   { width: 96px; }
+          .mk-hero-mascot   { height: clamp(5.5rem, 26vw, 9rem); }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -148,7 +150,7 @@ export default function Marketing({ session }) {
             Yapr
           </h1>
           <div
-            className="mk-hero-mascot relative flex-shrink-0"
+            className="mk-hero-mascot relative flex-shrink-0 aspect-square"
             aria-hidden="true"
           >
             <div className="absolute top-[18%] -left-4 min-[761px]:-left-[22px] flex flex-col gap-1 z-[2]">
@@ -159,8 +161,8 @@ export default function Marketing({ session }) {
             <div
               role="img"
               aria-label="Yapr the Pinecone"
-              className="bg-contain bg-no-repeat bg-center animate-float origin-[50%_85%] aspect-[544/686] [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
-              style={{ backgroundImage: "url('/yap-walking.png')" }}
+              className="w-full h-full bg-contain bg-no-repeat bg-center animate-float origin-[50%_85%] [filter:drop-shadow(0_12px_18px_rgba(74,47,24,0.18))]"
+              style={{ backgroundImage: "url('/yap.png')" }}
             />
           </div>
         </div>
@@ -169,7 +171,7 @@ export default function Marketing({ session }) {
           className="mt-[clamp(28px,4.5vw,64px)] font-dmsans font-bold text-marketing-ink -tracking-[0.015em] text-center animate-rise-slow [animation-delay:0.15s]"
           style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.4rem)' }}
         >
-          Your buddy to yap with.
+          Your buddy to yap with. Tap to start and Yapr listens, chats back, and remembers what matters.
         </p>
 
         <span className="absolute bottom-8 left-1/2 -translate-x-1/2 font-dmsans text-[11px] tracking-[0.04em] text-marketing-ink opacity-70 animate-bob">
