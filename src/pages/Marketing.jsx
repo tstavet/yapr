@@ -17,14 +17,17 @@ export default function Marketing({ session }) {
   return (
     <div className="relative min-h-screen bg-marketing-bg text-marketing-ink font-dmsans overflow-x-hidden antialiased">
       <style>{`
-        /* Hero wordmark + mascot need a real CSS clamp curve with a 420px
-           breakpoint override — Tailwind can't express conditional clamps.
+        /* Hero wordmark + mascot need a real CSS clamp curve with a phone-vs-
+           desktop split — Tailwind can't express conditional clamps. The
+           breakpoint matches the rest of the page (min-[761px] = desktop) so
+           all phones, including iPhone Pro Max at 430 CSS px, use the mobile
+           sizes. The desktop clamp's 8rem minimum overflows narrow viewports.
            Mascot is sized larger than the wordmark because yap.png has empty
            margin around the figure, so the visible pinecone needs the extra
            bounding box to read as comparable mass. */
         .mk-hero-wordmark { font-size: clamp(8rem, 24vw, 26rem); }
         .mk-hero-mascot   { height: clamp(12rem, 36vw, 39rem); }
-        @media (max-width: 420px) {
+        @media (max-width: 760px) {
           .mk-hero-wordmark { font-size: clamp(3rem, 17vw, 9rem); }
           .mk-hero-mascot   { height: clamp(4.5rem, 22vw, 11rem); }
         }
