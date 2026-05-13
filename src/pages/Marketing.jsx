@@ -144,16 +144,13 @@ export default function Marketing({ session }) {
               className="font-oswald font-bold uppercase text-marketing-brown leading-[0.9] tracking-[0.005em]"
               style={{ fontSize: 'clamp(4rem, 11vw, 11rem)' }}
             >
-              Yapr is ready to chat
-              <br />
-              when you are.
+              Ready to chat when you are
             </h2>
             <p
               className="font-dmsans font-medium leading-[1.45] text-marketing-ink max-w-[36ch]"
               style={{ fontSize: 'clamp(1.25rem, 2vw, 1.8rem)' }}
             >
-              Vent about your day, gossip about the groupchat, or talk through a hard event. Just tap to start chatting. Yap remembers, so you can pick up where you left off. 
-              where you left off.
+              Vent about your day, gossip about the groupchat, or talk through a hard event.
             </p>
           </div>
           <div
