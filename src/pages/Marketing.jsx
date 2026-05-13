@@ -145,8 +145,8 @@ export default function Marketing({ session }) {
       </header>
 
       {/* ============ HERO ============ */}
-      <main className="relative z-[1] min-h-screen flex flex-col items-start justify-center px-4 pt-[110px] pb-[100px] min-[761px]:px-6 min-[761px]:pt-[140px] min-[761px]:pb-20">
-        <div className="flex items-end justify-between w-full gap-4 relative animate-rise">
+      <main className="relative z-[1] min-h-screen flex flex-col items-start justify-center pt-[110px] pb-[100px] px-[clamp(24px,6vw,96px)] min-[761px]:pt-[140px] min-[761px]:pb-20">
+        <div className="flex items-end gap-[clamp(20px,4vw,72px)] relative animate-rise">
           <h1 className="mk-hero-wordmark font-oswald font-bold uppercase text-marketing-brown leading-[0.85] tracking-[0.005em] select-none">
             Yapr
           </h1>
@@ -169,8 +169,8 @@ export default function Marketing({ session }) {
         </div>
 
         <p
-          className="mt-[clamp(16px,2vw,24px)] font-dmsans font-bold text-marketing-ink -tracking-[0.015em] text-left max-w-[42ch] animate-rise-slow [animation-delay:0.15s]"
-          style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.4rem)' }}
+          className="mt-[clamp(16px,2vw,24px)] font-dmsans font-bold text-marketing-ink -tracking-[0.015em] text-left max-w-[52ch] animate-rise-slow [animation-delay:0.15s]"
+          style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.4rem)', textWrap: 'pretty' }}
         >
           Your buddy to yap with. Tap to start and Yapr listens, chats back, and remembers what matters.
         </p>
