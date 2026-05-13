@@ -47,13 +47,14 @@ export default function Marketing({ session }) {
 
         /* Hero wordmark + mascot need a real CSS clamp curve with a 420px
            breakpoint override — Tailwind can't express conditional clamps.
-           Mascot height tracks the wordmark font-size so the image visually
-           matches the text. yap.png is 1:1, hence aspect-square on the wrapper. */
+           Mascot is sized larger than the wordmark because yap.png has empty
+           margin around the figure, so the visible pinecone needs the extra
+           bounding box to read as comparable mass. */
         .mk-hero-wordmark { font-size: clamp(8rem, 24vw, 26rem); }
-        .mk-hero-mascot   { height: clamp(8rem, 24vw, 26rem); }
+        .mk-hero-mascot   { height: clamp(12rem, 36vw, 39rem); }
         @media (max-width: 420px) {
           .mk-hero-wordmark { font-size: clamp(5.5rem, 26vw, 9rem); }
-          .mk-hero-mascot   { height: clamp(5.5rem, 26vw, 9rem); }
+          .mk-hero-mascot   { height: clamp(8rem, 39vw, 13.5rem); }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -168,7 +169,7 @@ export default function Marketing({ session }) {
         </div>
 
         <p
-          className="mt-[clamp(28px,4.5vw,64px)] font-dmsans font-bold text-marketing-ink -tracking-[0.015em] text-center animate-rise-slow [animation-delay:0.15s]"
+          className="mt-[clamp(28px,4.5vw,64px)] font-dmsans font-bold text-marketing-ink -tracking-[0.015em] text-left max-w-[42ch] animate-rise-slow [animation-delay:0.15s]"
           style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.4rem)' }}
         >
           Your buddy to yap with. Tap to start and Yapr listens, chats back, and remembers what matters.
