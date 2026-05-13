@@ -43,35 +43,15 @@ export default function Marketing({ session }) {
 
       {/* ============ HEADER ============ */}
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 py-[18px] min-[761px]:px-9 min-[761px]:py-6">
-        <button
-          type="button"
-          aria-label="Open menu"
-          className="w-12 h-12 min-[761px]:w-14 min-[761px]:h-14 rounded-2xl border-[1.5px] border-marketing-brown/35 bg-white/40 backdrop-blur-md flex flex-col items-center justify-center gap-[5px] cursor-pointer transition-all duration-[250ms] hover:bg-white/70 hover:scale-[1.03]"
+        <Link
+          to="/"
+          aria-label="Yapr home"
+          className="font-oswald font-bold uppercase text-3xl min-[761px]:text-4xl text-marketing-brown tracking-[0.005em] no-underline select-none leading-none"
         >
-          <span className="block w-[18px] h-[1.75px] bg-marketing-brown rounded-sm" />
-          <span className="block w-[18px] h-[1.75px] bg-marketing-brown rounded-sm" />
-        </button>
+          Yapr
+        </Link>
 
         <nav className="flex items-center gap-3">
-          <a
-            href="#"
-            aria-label="Hear Yap talk"
-            className="hidden min-[761px]:inline-flex items-center gap-3 px-[26px] py-4 rounded-2xl font-dmsans font-semibold text-[15px] -tracking-[0.01em] text-marketing-brown bg-white/40 border-[1.5px] border-marketing-brown/35 backdrop-blur-md whitespace-nowrap transition-all duration-[250ms] hover:bg-white/70 hover:-translate-y-px no-underline"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polygon points="6 4 20 12 6 20 6 4"></polygon>
-            </svg>
-            <span>Hear Yap talk</span>
-          </a>
           <Link
             to="/login"
             aria-label="Start yapping"
@@ -131,6 +111,14 @@ export default function Marketing({ session }) {
         >
           Your buddy to yap with. Tap to start and Yapr listens, chats back, and remembers what matters.
         </p>
+
+        <Link
+          to="/login"
+          className="mt-[clamp(20px,2.5vw,32px)] inline-block px-14 py-[22px] bg-marketing-brown text-marketing-bg no-underline rounded-[18px] font-dmsans font-bold tracking-[0.01em] transition-all duration-[250ms] shadow-[0_6px_24px_rgba(74,47,24,0.18)] hover:bg-marketing-ink hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(74,47,24,0.25)]"
+          style={{ fontSize: 'clamp(1.1rem, 1.6vw, 1.5rem)' }}
+        >
+          Start yapping
+        </Link>
       </main>
 
       {/* ============ WHAT YAP IS FOR ============ */}
